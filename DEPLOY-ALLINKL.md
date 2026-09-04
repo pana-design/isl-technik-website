@@ -24,6 +24,7 @@ FTP_DIR=/
 ```
 
 ## Einmalige Einrichtung
+- Repo: github.com/pana-design/isl-technik-website (privat), Remote per SSH (`git@github.com:…`).
 - GitHub → Repo → Settings → Secrets and variables → Actions → **Secrets**:
   `FTP_HOST`, `FTP_USER`, `FTP_PASS`, `FTP_DIR` (siehe Kommentar in `.github/workflows/deploy.yml`).
 - `FTP_DIR` = Dokumentenwurzel der Domain. Im KAS unter **Domain → isl-technik.de → Pfad** nachsehen
