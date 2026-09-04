@@ -3,8 +3,8 @@
 Die Seite ist statisch (plus `kontakt.php` für das Formular). `node _tools/build.mjs`
 baut den Ordner `dist/` — nur HTML, css/, js/, fonts/, `.htaccess`, `kontakt.php` und
 die tatsächlich referenzierten Bilder/Clips (~27 MB). Backups, Quellen, Werkzeuge und
-Screens bleiben draußen. Jede Bildreferenz in dist/ bekommt `?v=<Inhalts-Hash>`,
-damit ersetzte Dateien trotz Ein-Jahres-Cache sofort frisch geladen werden.
+Screens bleiben draußen. Jede Bild-, CSS- und JS-Referenz in dist/ bekommt `?v=<Inhalts-Hash>`,
+damit ersetzte Dateien trotz Cache (Bilder ein Jahr, CSS/JS ein Tag) sofort frisch geladen werden.
 
 ## Laufender Betrieb: Push → automatisch online
 1. Änderung lokal machen, kurz prüfen (`python3 serve.py` oder `python3 -m http.server 8080`).

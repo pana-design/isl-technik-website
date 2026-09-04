@@ -51,6 +51,20 @@ for (const rel of [...PAGES, 'css/style.css', 'js/main.js']) {
   const p = join(DIST, rel); if (!existsSync(p)) continue;
   writeFileSync(p, readFileSync(p, 'utf8').replace(VERS, (m, f) => hashes[f] ? `${f}?v=${hashes[f]}` : f));
 }
+// Dasselbe fuer CSS und JS: .htaccess cacht sie einen Tag. Der manuelle Stempel
+// ?v=N im Quelltext wurde bei Aenderungen nicht mitgezogen — Handys zeigten
+// nach einem Deploy tagelang das alte Stylesheet (04.09.2026). Der Hash wird
+// NACH der img-Ersetzung gebildet, damit er die fertige dist-Datei beschreibt.
+const ASSETS = /((?:css|js)\/[\w.-]+\.(?:css|js))(\?v=[\w.-]*)?/g;
+const assetHash = {};
+for (const rel of ['css/style.css', 'js/main.js']) {
+  const p = join(DIST, rel); if (!existsSync(p)) continue;
+  assetHash[rel] = createHash('md5').update(readFileSync(p)).digest('hex').slice(0, 8);
+}
+for (const rel of PAGES) {
+  const p = join(DIST, rel); if (!existsSync(p)) continue;
+  writeFileSync(p, readFileSync(p, 'utf8').replace(ASSETS, (m, f) => assetHash[f] ? `${f}?v=${assetHash[f]}` : m));
+}
 // Bericht
 const walk = d => readdirSync(join(ROOT, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]);
 const unused = walk('img').filter(f => !refs.has(f));
