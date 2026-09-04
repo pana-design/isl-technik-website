@@ -55,6 +55,13 @@
       c.top = absTop(c.el) - gap;
       c.travel = c.spacer ? c.spacer.offsetHeight : 0;
     }
+    // Umschaltpunkte der Wetter-Buehne kommen aus dem CSS (--wx-a/--wx-b,
+    // mobil frueher als am Desktop), damit Clip und Ueberblendung zusammenpassen
+    if (wxCard) {
+      const cs = getComputedStyle(wxCard.el);
+      wxA = parseFloat(cs.getPropertyValue("--wx-a")) || 0.36;
+      wxB = parseFloat(cs.getPropertyValue("--wx-b")) || 0.66;
+    }
   }
 
   /* ---------- 2 · Mehrstufige Sections registrieren ---------- */
@@ -88,6 +95,7 @@
   const wxPhases = wxCard ? [...wxCard.el.querySelectorAll(".wx__phase")] : [];
   const wxFrame = wxCard ? wxCard.el.querySelector(".wx__frame") : null;
   let wxCur = -1;                       // Phase, die gerade laeuft (-1: keine)
+  let wxA = 0.36, wxB = 0.66;           // Schwellen, siehe measure()
   const wxVideo = ph => {
     if (!clipReady || !ph) return;
     if (ph.dataset.clipOn) return;
@@ -104,7 +112,7 @@
   const wxTick = () => {
     if (!wxCard || wxCard.travel <= 4 || !wxPhases.length || !wxFrame) return;
     const p = wxCard.last < 0 ? 0 : wxCard.last;
-    const idx = p < 0.38 ? 0 : p < 0.68 ? 1 : 2;
+    const idx = p < wxA + 0.02 ? 0 : p < wxB + 0.02 ? 1 : 2;
     // Laden, sobald die Karte in Reichweite kommt (aktuelle + naechste Phase)
     const r = wxCard.el.getBoundingClientRect();
     const near = r.bottom > -200 && r.top < innerHeight * 1.5;

@@ -820,16 +820,17 @@ p.macro__counter span:last-child{font-size:.9375rem}
 /* Desktop zeigt als Ausgangsbild die saubere Abdeckung (Startframe des
    Laub-Clips); das Laub-Standbild ist der statische Ersatz fuer mobil. */
 .wx__still--laub{display:none}
-.wx__phase--nacht{opacity:clamp(0,(var(--p,0) - .36)/.1,1)}
-.wx__phase--regen{opacity:clamp(0,(var(--p,0) - .66)/.1,1)}
+.wx{--wx-a:.36;--wx-b:.66}   /* Umschaltpunkte Laub→Nacht→Regen (mobil verschoben, main.js liest sie mit) */
+.wx__phase--nacht{opacity:clamp(0,(var(--p,0) - var(--wx-a))/.1,1)}
+.wx__phase--regen{opacity:clamp(0,(var(--p,0) - var(--wx-b))/.1,1)}
 /* Statusleiste: welcher Schutz gerade zu sehen ist */
 .wx__bar{position:absolute;left:1rem;right:1rem;bottom:1rem;z-index:5;
   display:flex;align-items:center;gap:1rem}
 .wx__item{flex:1;display:flex;align-items:center;gap:.7rem;min-width:0;
   opacity:calc(.35 + .65 * var(--on,0));transition:opacity .2s linear}
-.wx__item[data-i="0"]{--on:calc(1 - clamp(0,(var(--p,0) - .36)/.1,1))}
-.wx__item[data-i="1"]{--on:calc(clamp(0,(var(--p,0) - .36)/.1,1) - clamp(0,(var(--p,0) - .66)/.1,1))}
-.wx__item[data-i="2"]{--on:clamp(0,(var(--p,0) - .66)/.1,1)}
+.wx__item[data-i="0"]{--on:calc(1 - clamp(0,(var(--p,0) - var(--wx-a))/.1,1))}
+.wx__item[data-i="1"]{--on:calc(clamp(0,(var(--p,0) - var(--wx-a))/.1,1) - clamp(0,(var(--p,0) - var(--wx-b))/.1,1))}
+.wx__item[data-i="2"]{--on:clamp(0,(var(--p,0) - var(--wx-b))/.1,1)}
 .wx__item .glass__ico{flex:0 0 auto}
 .wx__txt{min-width:0}
 .wx__big{font-family:"Clash Grotesk",sans-serif;font-size:1.15rem;font-weight:500;
@@ -927,11 +928,6 @@ p.macro__counter span:last-child{font-size:.9375rem}
 .voice__text{font-family:"Clash Grotesk",sans-serif;font-weight:500;letter-spacing:-.02em;
   font-size:clamp(1.375rem,2.4vw,2.125rem);line-height:1.18}
 .voice__who{margin-top:1.25rem;color:var(--text-secondary);font-size:var(--fs-small)}
-/* Platzhalter sichtbar kennzeichnen — muss vor Livegang raus */
-.voice[data-platzhalter] .voice__text{color:#9AA3AB}
-.voice__flag{display:inline-block;margin-top:1rem;font-size:.6875rem;font-weight:600;
-  letter-spacing:.08em;text-transform:uppercase;color:#B45309;
-  background:#FEF3C7;border:1px solid #FCD34D;border-radius:999px;padding:.2rem .6rem}
 @media (max-width:60rem){
   .voices__pin{grid-template-columns:1fr;height:auto}
   .voices__media{aspect-ratio:4/3}
@@ -1114,7 +1110,8 @@ p.macro__counter span:last-child{font-size:.9375rem}
 @media (max-width:36rem){.form__row{grid-template-columns:1fr}}
 
 /* Rechtstext-Seiten */
-.legal{max-width:48rem;margin:0 auto;padding:clamp(2rem,6vw,5rem) var(--pad-x)}
+.legal{max-width:48rem;margin:0 auto;padding:clamp(2rem,6vw,5rem) var(--pad-x);
+  padding-top:calc(5rem + clamp(1.5rem,4vw,3rem))}   /* unter der fixierten Nav (5rem) beginnen */
 .legal h1{font-size:var(--fs-h2);margin-bottom:2rem}
 .legal h2{font-size:var(--fs-h3);margin:2.5rem 0 .75rem}
 .legal p,.legal li{color:var(--text-secondary);margin-bottom:.75rem}
@@ -1289,6 +1286,7 @@ p.macro__counter span:last-child{font-size:.9375rem}
   .form{margin-top:1.75rem}
   .btn{width:100%;justify-content:space-between}
   .nav__cta,.faq a,.legal a{width:auto}
+  .legal{padding-top:calc(3.5rem + 2rem)}   /* mobile Nav ist 3.5rem hoch */
   .hero__cta .btn,.cta__copy .btn{width:100%}
 
   /* ---- Footer: liegt fest und wird von der letzten Karte freigelegt ----
@@ -1589,8 +1587,11 @@ p.macro__counter span:last-child{font-size:.9375rem}
 
 /* Wetter-Buehne mobil gepinnt: drei Zustaende als Clips wie am Desktop */
 @media (max-width:63.99rem) and (min-height:40rem){
-  #lichtschacht{position:sticky;top:0;height:100svh !important;z-index:1}
-  .spacer[data-for="lichtschacht"]{display:block;height:140svh}
+  /* Scrollweg 170svh statt 140: der Regen bekommt so ~50svh, bevor die
+     Kundenstimmen von unten drueberschieben (vorher ~25svh — die Phase
+     war kaum zu sehen). Schwellen frueher, damit alle drei gleich lang laufen. */
+  #lichtschacht{position:sticky;top:0;height:100svh !important;z-index:1;--wx-a:.30;--wx-b:.58}
+  .spacer[data-for="lichtschacht"]{display:block;height:170svh}
   #lichtschacht .pin{height:100% !important;display:flex;flex-direction:column;
     justify-content:flex-start;gap:.75rem;padding:4.25rem var(--pad-x) 1.25rem}
   #lichtschacht .lead{margin-bottom:.25rem}
@@ -1601,9 +1602,16 @@ p.macro__counter span:last-child{font-size:.9375rem}
   #lichtschacht .wx__phase--nacht,#lichtschacht .wx__phase--regen{display:block}
   #lichtschacht .wx__still--clean{display:block}
   #lichtschacht .wx__phase .wx__still--laub{display:none}
-  #lichtschacht .wx__bar{position:static;margin-top:.5rem;flex-direction:column;
-    align-items:stretch;gap:.5rem;padding:.75rem 1rem}
-  #lichtschacht .wx__item{flex:none;opacity:calc(.35 + .65 * var(--on,0))}
+  /* Statusleiste kompakt: drei Spalten nebeneinander (Icon, Etikett, Text)
+     statt drei Zeilen — die hohe Leiste ragte auf kurzen Safari-Viewports
+     (640–710px) unter den Bildschirmrand, "Bei Regen" war abgeschnitten. */
+  #lichtschacht .wx__bar{position:static;margin-top:.5rem;display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;gap:.5rem;padding:.6rem .7rem}
+  #lichtschacht .wx__item{flex:none;display:flex;flex-direction:column;align-items:flex-start;
+    gap:.3rem;opacity:calc(.35 + .65 * var(--on,0))}
+  #lichtschacht .wx__item .glass__ico{width:1.75rem;height:1.75rem}
+  #lichtschacht .wx__txt .glass__label{font-size:.625rem}
+  #lichtschacht .wx__big{font-size:.85rem;line-height:1.2;margin-top:.1rem;white-space:normal;overflow:visible}
   #lichtschacht .facts{display:none}
 }
 
@@ -1627,7 +1635,7 @@ p.macro__counter span:last-child{font-size:.9375rem}
   #lichtschacht .wx__phase{border-radius:var(--radius);overflow:hidden;
     box-shadow:0 1rem 2rem rgba(16,19,23,.10)}
   #lichtschacht .wx__phase[data-i="0"]{background:#F4F5F6}
-  #lichtschacht .wx__bar{position:absolute;top:100%;left:0;right:0;bottom:auto;margin-top:.75rem}
+  #lichtschacht .wx__bar{position:absolute;top:100%;left:0;right:0;bottom:auto;margin-top:.6rem}
 }
 @media (max-width:63.99rem){
   /* Etikett ueber die Lupe — unten laege es hinter den Kacheln */
@@ -1640,8 +1648,8 @@ p.macro__counter span:last-child{font-size:.9375rem}
    damit Text, Rahmen und Statusleiste in die gepinnte Karte passen */
 @media (max-width:63.99rem) and (min-height:40rem){
   #lichtschacht .pin{padding-top:3.75rem}
-  #lichtschacht .wx__stage{width:min(100%,calc((100svh - 30.5rem) * 16 / 9));margin-inline:auto}
-  #lichtschacht .wx__bar{padding:.6rem .9rem;gap:.35rem}
+  /* Budget: 3.75rem Kopf + Eyebrow/Headline/Lead (~18rem) + Leiste (~6rem) + Rand */
+  #lichtschacht .wx__stage{width:min(100%,calc((100svh - 26.5rem) * 16 / 9));margin-inline:auto}
 }
 
 /* ==========================================================================

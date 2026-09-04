@@ -8,17 +8,26 @@ Stand: 24.08.2026
 ## 🔴 Rechtlich zwingend
 
 - [ ] **Kundenstimmen ersetzen.** Die drei Zitate in `index.html` (Abschnitt `#stimmen`) sind
-      Beispieltexte, markiert mit `data-platzhalter="true"` und einem sichtbaren Badge.
-      Erfundene Bewertungen sind nach **Anhang Nr. 23b UWG** unzulässig und abmahnfähig — das
-      Risiko trägt der Betreiber.
-      → Echte, freigegebene Stimmen einsetzen, dann `data-platzhalter` und `.voice__flag` entfernen.
+      Beispieltexte. Die sichtbare Kennzeichnung („Beispieltext · echte Kundenstimme folgt")
+      wurde am 04.09.2026 auf Wunsch entfernt — die Zitate sehen jetzt wie echte Bewertungen aus,
+      sind es aber nicht. Erfundene Bewertungen sind nach **Anhang Nr. 23b UWG** unzulässig und
+      abmahnfähig — das Risiko trägt der Betreiber.
+      → Echte, freigegebene Stimmen einsetzen (Text, Name, Ort, ggf. Foto).
       → Falls keine vorliegen: Abschnitt entfernen statt Platzhalter zu veröffentlichen.
       → AUCH die Avatar-Fotos (img/produkte/avatar-*.webp, KI-generierte Stockfotos) und die
         fiktiven Namen/Orte (Markus B./Friedberg, Sabine K./Gersthofen, Julia M./Königsbrunn)
         sind Platzhalter vom 03.09.2026 und müssen mit den echten Stimmen ersetzt werden.
 
-- [ ] **Impressum vervollständigen** (`impressum.html`) — alle mit ⬜ markierten Punkte:
-      Rechtsform, Registereintrag, USt-IdNr., inhaltlich Verantwortlicher, ggf. Handwerkskammer.
+- [ ] **Impressum gegenprüfen** (`impressum.html`, neu geschrieben am 04.09.2026, ohne Platzhalter).
+      Angenommen: nicht im Handelsregister eingetragener Betrieb mit den Inhabern Dennis Vetter
+      und Dominik Hayda; Abschnitte Registereintrag/USt-IdNr./Handwerkskammer daher weggelassen
+      (sind nur Pflicht, wenn vorhanden). Vom Betreiber bestätigen lassen:
+      → Rechtsform: GbR (dann Firmierung „… Vetter & Hayda GbR" ergänzen), Einzelunternehmen
+        (dann nur der eine Inhaber) oder GmbH/UG (dann Registergericht + HRB-Nummer + Geschäftsführer).
+      → USt-IdNr. vorhanden? Dann Abschnitt „Umsatzsteuer-ID" ergänzen.
+      → In der Handwerksrolle eingetragen (z. B. Rollladen- und Sonnenschutztechnik)? Dann
+        Handwerkskammer für Schwaben, Berufsbezeichnung und Verleihungsstaat ergänzen.
+      → Der Link zur EU-OS-Plattform wurde entfernt — die Plattform ist seit 20.07.2025 abgeschaltet.
 
 - [ ] **Datenschutzerklärung prüfen lassen** (`datenschutz.html`) — AVV mit All-Inkl im KAS
       abschließen (Hosting-Absatz ist bereits auf All-Inkl umgestellt, 04.09.2026).
