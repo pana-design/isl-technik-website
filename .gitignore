@@ -1,0 +1,16 @@
+# nicht deployen / nicht versionieren
+node_modules/
+dist/
+_backup/
+_quellen/
+ref/
+shots/
+shots-*/
+Fotos Website /
+.DS_Store
+.projectatlas/
+.claude/
+.agents/
+.mcp.json
+skills-lock.json
+.ftp-allinkl.env

@@ -1,0 +1,11 @@
+import { chromium } from 'playwright-core';
+const CH=process.env.HOME+'/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
+const b=await chromium.launch({executablePath:CH,args:['--autoplay-policy=no-user-gesture-required']});
+const p=await b.newPage({viewport:{width:1512,height:982}});
+const fails=[]; p.on('requestfailed',r=>fails.push(r.url().split('/').pop()+' :: '+(r.failure()||{}).errorText));
+await p.goto('http://localhost:8080/',{waitUntil:'networkidle'});
+await p.waitForTimeout(2500);
+console.log(JSON.stringify(await p.evaluate(()=>{const v=document.getElementById('heroGrass');
+ return {src:v.currentSrc.split('/').pop(), ready:v.readyState, paused:v.paused, t:+v.currentTime.toFixed(2), err:v.error&&v.error.code};})));
+console.log('fehlgeschlagen:', fails.length?fails.join(' | '):'keine');
+await b.close();

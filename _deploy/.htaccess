@@ -1,0 +1,44 @@
+# ISL TECHNIK — Apache-Konfiguration fuer All-Inkl
+# Entspricht den Headern aus netlify.toml.
+
+# --- HTTPS und ohne www erzwingen ---
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# --- MIME-Typen, damit Clips/Schriften/WebP sicher richtig ausgeliefert werden ---
+AddType video/mp4 .mp4
+AddType video/webm .webm
+AddType image/webp .webp
+AddType font/woff2 .woff2
+AddType font/woff .woff
+AddCharset UTF-8 .html .css .js .xml .txt
+
+# --- Cache: Bilder/Clips/Schriften ein Jahr (URLs tragen ?v=Hash), CSS/JS ein Tag, HTML immer frisch ---
+<IfModule mod_headers.c>
+  <FilesMatch "\.(webp|png|jpe?g|svg|gif|ico|mp4|webm|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+  <FilesMatch "\.(html|php)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# --- Kompression fuer Text ---
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml text/xml
+</IfModule>
+
+# --- Kein Verzeichnislisting ---
+Options -Indexes

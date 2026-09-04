@@ -1,0 +1,54 @@
+# Baut dist/ und laedt es per FTPS auf den All-Inkl-Webspace — bei jedem Push
+# auf main und auf Knopfdruck (Actions → "Deploy zu All-Inkl" → Run workflow).
+#
+# Benoetigt in GitHub → Settings → Secrets and variables → Actions:
+#   Secrets:   FTP_HOST  (z. B. w01ae49d.kasserver.com)
+#              FTP_USER  (FTP-Benutzer aus dem KAS)
+#              FTP_PASS  (FTP-Passwort)
+#              FTP_DIR   (Dokumentenwurzel der Domain, z. B. /  oder /isl-technik.de/)
+#   Variable:  LIVE = 1  sobald die Seite fuer Suchmaschinen frei sein soll
+#              (robots.txt erlaubt, Sitemap dabei). Leer/fehlend = Vorschau.
+name: Deploy zu All-Inkl
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-allinkl
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code holen
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: dist/ bauen
+        run: node _tools/build.mjs
+        env:
+          LIVE: ${{ vars.LIVE }}
+
+      - name: Per FTPS hochladen
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftps
+          port: 21
+          local-dir: ./dist/
+          server-dir: ${{ secrets.FTP_DIR }}
+          state-name: .ftp-deploy-sync-state.json
+          log-level: standard
+          # Nur Dateien loeschen, die ein frueherer Deploy selbst hochgeladen hat.
+          dangerous-clean-slate: false
+          exclude: |
+            **/.DS_Store

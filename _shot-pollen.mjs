@@ -1,0 +1,14 @@
+import { chromium } from 'playwright-core';
+const CH=process.env.HOME+'/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
+const OUT='/private/tmp/claude-501/-Users-pana-Documents-Kunden-Website-by-Panagiotis-ISL-TECHNIK/2c17dc87-c090-45dc-a3cf-7d0b3ac6476a/scratchpad';
+const b=await chromium.launch({executablePath:CH});
+const p=await b.newPage({viewport:{width:1512,height:982}});
+await p.goto('http://localhost:8080/',{waitUntil:'networkidle'});
+await p.evaluate(()=>{const c=document.getElementById('pollenschutz');
+  window.scrollTo(0,c.offsetTop+c.offsetHeight*0.5-window.innerHeight*0.2);});
+await p.waitForTimeout(1600);
+await p.screenshot({path:OUT+'/pollen-1.png'});
+await p.hover('.glass__segs .seg-b');
+await p.waitForTimeout(500);
+await p.screenshot({path:OUT+'/pollen-hover.png'});
+await b.close();

@@ -1,0 +1,1679 @@
+/* ==========================================================================
+   ISL TECHNIK — OnePager
+   Design-System nach Vorbild sensiq.co, umgefärbt auf das ISL-Logo (#06BAFF)
+   ========================================================================== */
+
+/* ---------- Fonts (lokal, kein CDN — DSGVO) ---------- */
+@font-face{
+  font-family:"Clash Grotesk";
+  src:url("../fonts/ClashGrotesk-Variable.woff2") format("woff2-variations");
+  font-weight:200 700; font-display:swap; font-style:normal;
+}
+@font-face{
+  font-family:"Inter";
+  src:url("../fonts/Inter-Variable.woff2") format("woff2-variations");
+  font-weight:100 900; font-display:swap; font-style:normal;
+}
+
+/* ---------- Tokens ---------- */
+:root{
+  /* Farben — Akzent exakt aus LOGO NEU.png gemessen */
+  --bg-page:#F2F3F4;
+  --bg-card:#FFFFFF;
+  --bg-stone:#E7E9EA;
+  --bg-inverse:#16181C;
+  --bg-inverse-soft:#22262C;
+  --text-primary:#101317;
+  --text-secondary:#6B7280;
+  --text-on-dark:#F4F6F7;
+  --text-on-dark-dim:rgba(244,246,247,.66);
+  --border:#E1E4E7;
+  --border-strong:#CBD1D6;
+  --border-on-dark:rgba(255,255,255,.12);
+
+  --accent:#06BAFF;
+  --accent-deep:#0090C8;
+  --accent-soft:rgba(6,186,255,.12);
+
+  --glass-bg:rgba(16,19,23,.55);
+  --glass-border:rgba(255,255,255,.10);
+  --glass-hatch:rgba(255,255,255,.07);
+
+  /* Raster */
+  --gap:clamp(0.75rem,1.1vw,1.5rem);
+  --radius:1rem;
+  --radius-sm:.625rem;
+  --pad-x:clamp(1.25rem,4.5vw,5rem);
+  --pad-y:clamp(1.5rem,3vw,2.5rem);
+  --pad-top:clamp(5rem,7vw,6.5rem);   /* Platz fuer die Nav-Leiste */
+  --content-max:100rem;      /* 1600px — ab hier zentriert der Inhalt */
+  --measure:38rem;           /* Lesebreite Fließtext */
+
+  /* Kartenhöhe: dvh gegen springende URL-Leiste, vh als Fallback davor */
+  --card-h:calc(100vh - var(--gap) * 2);
+  --card-h:calc(100dvh - var(--gap) * 2);
+
+  /* Easings — aus der Referenz gemessen */
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-io:cubic-bezier(.32,.72,0,1);
+  --ease-soft:cubic-bezier(.22,1,.36,1);
+  --ease-in:cubic-bezier(.7,0,.84,0);
+  --dur-short:.45s;
+  --dur-base:.7s;
+
+  /* Typo — nach oben gedeckelt, wie die Referenz (72px ab FullHD) */
+  --fs-display:clamp(2.5rem,5vw,4.5rem);   /* 40 → 72px */
+  --fs-h2:clamp(1.75rem,3.2vw,3rem);
+  --fs-h3:clamp(1.25rem,1.8vw,1.625rem);
+  --fs-body:clamp(1rem,1.05vw,1.125rem);
+  --fs-small:.9375rem;
+  --fs-caption:.8125rem;
+}
+
+/* ---------- Reset ---------- */
+*,*::before,*::after{box-sizing:border-box}
+html{
+  -webkit-text-size-adjust:100%;
+  scroll-behavior:smooth;
+  /* Nav ist sticky: Ankersprünge nicht unter die Leiste schieben */
+  scroll-padding-top:6rem;
+}
+body{
+  margin:0;
+  background:var(--bg-page);
+  color:var(--text-primary);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:var(--fs-body);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:clip;              /* Sicherheitsnetz gegen seitliches Scrollen */
+}
+img,picture,video,canvas{display:block;max-width:100%;height:auto}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4,p,figure,blockquote{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+
+/* Deutsche Komposita: "Lichtschachtabdeckungen" darf keine Karte sprengen */
+h1,h2,h3,.headline{
+  font-family:"Clash Grotesk",system-ui,sans-serif;
+  font-weight:500;
+  line-height:.92;
+  letter-spacing:-.02em;
+  hyphens:auto;
+  -webkit-hyphens:auto;
+  overflow-wrap:anywhere;
+  text-wrap:balance;
+}
+:focus-visible{
+  outline:3px solid var(--accent);
+  outline-offset:3px;
+  border-radius:.25rem;
+}
+
+/* ---------- Bausteine ---------- */
+.eyebrow{
+  font-size:var(--fs-caption);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--text-secondary);
+}
+.lead{
+  font-size:clamp(1rem,1.25vw,1.25rem);
+  color:var(--text-secondary);
+  max-width:var(--measure);
+}
+.on-dark .eyebrow,.on-dark .lead{color:var(--text-on-dark-dim)}
+.on-dark{color:var(--text-on-dark)}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  height:3.25rem;padding:0 1.375rem;
+  border:0;border-radius:.625rem;
+  background:var(--bg-inverse);color:#fff;
+  font-weight:600;font-size:.9375rem;letter-spacing:-.01em;
+  cursor:pointer;white-space:nowrap;
+  transition:background-color .2s var(--ease-out),transform .2s var(--ease-out);
+}
+.btn:hover{background:#000;transform:translateY(-1px)}
+.btn .chev{transition:transform .45s var(--ease-out)}
+.btn:hover .chev{transform:translateX(.375rem)}
+.btn--accent{background:var(--accent);color:#04222E}
+.btn--accent:hover{background:var(--accent-deep);color:#fff}
+.btn--ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 1px var(--border-strong)}
+.btn--ghost:hover{background:rgba(0,0,0,.04);transform:none}
+.on-dark .btn--ghost{box-shadow:inset 0 0 0 1px var(--border-on-dark)}
+.on-dark .btn--ghost:hover{background:rgba(255,255,255,.08)}
+
+/* Inhaltsbreite: Karte wird breit, Text nicht (Referenz-Regel) */
+.inner{
+  width:100%;max-width:var(--content-max);
+  margin-inline:auto;padding-inline:var(--pad-x);
+}
+
+/* ---------- Karten-Layout ----------
+   Alle Karten sind Geschwister im selben Container und laufen im normalen
+   Fluss — wie in der Referenz schiebt jede Sektion die vorige vollstaendig
+   aus dem Bild. Nur #hero, #systeme und #stimmen kleben am Desktop (siehe
+   Media-Block unten). Die .spacer liefern den Scrollweg der gepinnten
+   Karten; ueber sie laeuft --p.                                              */
+.stack{position:relative}
+.card{
+  position:relative;
+  margin-inline:var(--gap);
+  min-height:var(--card-h);
+}
+.card + .card,.spacer + .card{margin-top:var(--gap)}
+/* .pinwrap begrenzt gepinnte Karten (#systeme, #stimmen): das Sticky endet
+   am Wrapper-Boden, danach schiebt der normale Fluss die Karte raus. */
+.pinwrap{position:relative}
+.card + .pinwrap,.spacer + .pinwrap,.pinwrap + .card,.pinwrap + .pinwrap{margin-top:var(--gap)}
+/* Alles nach dem Hero bekommt einen deckenden Grund: der Hero klebt dahinter
+   und soll nur im oberen Uebergang sichtbar sein, nicht in den Kartenfugen. */
+.stack__rest{position:relative;background:var(--bg-page)}
+.spacer + .stack__rest{margin-top:var(--gap)}
+.spacer{display:none}
+.pin{
+  min-height:var(--card-h);
+  border-radius:var(--radius);
+  overflow:hidden;
+  isolation:isolate;
+  background:var(--bg-card);
+  display:flex;flex-direction:column;justify-content:center;
+}
+/* Farbdramaturgie nach Referenz:
+   Radius bekommt nur, wer sich farblich vom Grund abhebt.
+   Karten in Grundfarbe laufen randlos ineinander — der Uebergang verschwindet. */
+.card--ground .pin{background:var(--bg-page);border-radius:0}
+.card--white  .pin{background:var(--bg-card)}
+.card--tint   .pin{background:var(--bg-stone)}
+.card--ink    .pin{background:var(--bg-inverse-soft);color:var(--text-on-dark)}
+.card--dark   .pin{background:var(--bg-inverse);color:var(--text-on-dark)}
+
+/* Desktop: normaler Fluss wie die Referenz — jede Sektion schiebt die
+   vorige vollstaendig aus dem Bild, nichts legt sich ueber sichtbaren
+   Inhalt. Nur drei Sektionen kleben, weil dort eine scrollgetriebene
+   Inszenierung Scrollweg braucht (Referenz: hero, overview, testimonials):
+   #hero (Schutz faehrt zu), #systeme (Schritt-Durchlauf), #stimmen (Zitate).
+   Deren Spacer liefern den Scrollweg; danach schiebt sich die naechste
+   Sektion darueber. Umschaltpunkt aus der Referenz gemessen: 820–1280px. */
+@media (min-width:64rem) and (min-height:43.75rem){
+  #hero,#systeme,#insektenschutz,#lichtschacht,#stimmen{
+    position:sticky;
+    top:var(--gap);
+    height:var(--card-h);
+    min-height:0;
+  }
+  /* Pins muessen ihre Karte immer voll ausfuellen — sonst scheint der
+     dahinter klebende Hero durch (spezifischer als .faq__pin{min-height:0}) */
+  .card .pin{min-height:var(--card-h)}
+  #hero .pin,#systeme .pin,#insektenschutz .pin,#lichtschacht .pin,#stimmen .pin{height:100%;min-height:0}
+  .spacer{display:none}
+  .spacer[data-for="hero"],.spacer[data-for="systeme"],.spacer[data-for="insektenschutz"],.spacer[data-for="lichtschacht"],.spacer[data-for="stimmen"]{
+    display:block;height:calc(var(--sc,0) * var(--card-h))}
+  .stack{padding-bottom:var(--gap)}
+  /* Footer schiebt sich als letztes ueber den Stapel */
+  .footer{position:relative;z-index:2}
+}
+/* Ohne Stack: Karten wachsen mit ihrem Inhalt, nichts wird abgeschnitten */
+@media (max-width:63.99rem),(max-height:43.75rem){
+  .card{height:auto !important;min-height:0}
+  .pin{height:auto;min-height:0;padding-block:clamp(3rem,8vw,4.5rem)}
+}
+
+/* ---------- Einblendungen ---------- */
+.reveal{
+  opacity:0;transform:translateY(.75rem);
+  transition:opacity var(--dur-base) var(--ease-out),transform var(--dur-base) var(--ease-out);
+  transition-delay:var(--d,0s);
+}
+.reveal.is-in{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important;
+  }
+  .reveal{opacity:1;transform:none}
+}
+
+/* ==========================================================================
+   NAVIGATION — kollabiert beim Scrollen (wie Referenz)
+   ========================================================================== */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;align-items:center;gap:.5rem;
+  height:5rem;padding:var(--gap) var(--pad-x) 0;
+  background:transparent;pointer-events:none;
+  transition:height .45s var(--ease-out);
+}
+.nav > *{pointer-events:auto}
+.nav__logo{display:flex;align-items:center;flex-shrink:0;margin-right:.9rem}
+.nav__logo img{height:3.5rem;width:auto;transform:translateZ(0);backface-visibility:hidden}
+@media (max-width:30rem){.nav__logo img{height:2.75rem}}
+/* dunkles Home-Quadrat neben der Wortmarke (Referenz) */
+.nav__home{flex:0 0 auto;width:4rem;height:4rem;border-radius:.625rem;
+  background:var(--bg-inverse);color:#fff;
+  display:grid;place-items:center;transition:background-color .2s}
+.nav__home:hover{background:var(--bg-inverse-soft)}
+/* weiße Leiste ueber die volle Restbreite: Links + Telefon + CTA.
+   Kollaps wie sensiq.co (live gemessen): die Leiste faehrt ihre BREITE
+   mit ~0.9s starkem Ease-out zusammen — die rechte Kante gleitet nach
+   links, bis nur ein 4rem-Quadrat uebrig bleibt, in dem der Burger
+   einblendet. Kein Fade der ganzen Leiste. */
+.nav__bar{
+  flex:1 1 0%;min-width:4rem;height:4rem;
+  display:flex;align-items:center;
+  background:var(--bg-card);border-radius:.625rem;
+  padding-right:.5rem;overflow:hidden;
+  transition:flex-grow .9s cubic-bezier(.16,1,.3,1),
+             flex-basis .9s cubic-bezier(.16,1,.3,1);
+}
+.nav__bar > *{transition:opacity .3s var(--ease-out)}
+.nav__links{display:flex;align-items:stretch;height:100%}
+.nav__links a{
+  display:flex;align-items:center;
+  padding:0 1.4rem;font-size:.9375rem;font-weight:500;
+  white-space:nowrap;
+  box-shadow:inset -1px 0 0 var(--border);
+  transition:background-color .2s,color .2s;
+}
+.nav__links a:hover{background:var(--bg-stone);color:var(--accent-deep)}
+.nav__tel{margin-left:auto;width:2.75rem;height:2.75rem;border-radius:.5rem;
+  display:grid;place-items:center;transition:background-color .2s}
+.nav__tel:hover{background:var(--bg-stone)}
+.nav__tel svg{width:1.3rem;height:1.3rem}
+.nav__tel--m{display:none}
+.nav__cta{margin-left:.35rem}
+/* Burger liegt deckungsgleich ueber der linken Kante der Leiste (negative
+   Marge frisst Breite + Flex-Gap) und blendet erst ein, wenn die Leiste
+   fast auf das Quadrat zusammengefahren ist */
+.nav__burger{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;width:4rem;height:4rem;border-radius:.625rem;
+  margin-right:calc(-4rem - .5rem);position:relative;z-index:1;
+  background:transparent;border:0;cursor:pointer;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s var(--ease-out);
+}
+.nav__burger span{display:block;width:1.125rem;height:2px;background:currentColor;
+  box-shadow:0 6px 0 currentColor,0 -6px 0 currentColor}
+
+/* Kollabierter Zustand: Inhalt blendet schnell aus, die Leiste faehrt
+   auf das Burger-Quadrat zusammen, der Burger erscheint mit Verzoegerung */
+.nav.is-collapsed .nav__bar{flex:0 0 4rem}
+.nav.is-collapsed .nav__bar > *{opacity:0;pointer-events:none}
+.nav.is-collapsed .nav__burger{opacity:1;pointer-events:auto;transition-delay:.4s}
+
+/* Mobiles Panel */
+.nav__panel{
+  position:fixed;inset:5rem var(--gap) auto;z-index:59;
+  background:var(--bg-card);border-radius:var(--radius);
+  padding:.5rem;box-shadow:0 24px 60px rgba(0,0,0,.16);
+  display:none;
+}
+.nav__panel.is-open{display:block}
+.nav__panel a{display:block;padding:.95rem 1.1rem;font-weight:500;border-radius:.5rem}
+.nav__panel a:hover{background:var(--bg-stone)}
+
+/* Unterhalb Desktop: wie die mobile Referenz — Wortmarke links,
+   rechts Telefon-Icon + Burger; Leiste, CTA und Home-Quadrat entfallen */
+@media (max-width:63.99rem){
+  .nav__bar,.nav__home{display:none}
+  .nav__burger{display:inline-flex;order:2;margin-right:0;
+    opacity:1;pointer-events:auto;background:var(--bg-card);
+    width:3rem;height:3rem}
+  .nav__tel--m{display:grid;margin-left:auto}
+}
+
+/* ==========================================================================
+   HERO — Gewebe fährt beim Scrollen zu
+   ========================================================================== */
+.hero .pin{padding:0}
+
+/* ==========================================================================
+   HERO — Hausfassade mit zwei bedienbaren Öffnungen
+   Links Terrassentür (Schiebeelement, waagerecht), rechts Fenster (Plissee,
+   senkrecht). Beide folgen der Maus. Zonen am Bild ausgemessen:
+     Fenster  x 59.64–79.22 %   y 37.41–60.91 %
+     Tür      x 22.71–43.70 %   y 37.59–77.71 %
+   ========================================================================== */
+
+/* Gemeinsame Zonenbasis — die Prozentwerte stammen aus der Bildvermessung */
+
+/* Gewebe — gemeinsame Optik für Plissee und Schiebeelement:
+   durchscheinend, feine Maschen, kein Rollladen. */
+/* Plissee: von oben, mit Faltenstruktur die sich beim Ausfahren streckt */
+/* Schiebeelement: von rechts nach links */
+
+/* Dezenter Hinweis, welche Zone gerade bedient wird */
+
+/* Aufhellung für den Text — oben stark, unten offen, damit die Öffnungen frei bleiben */
+
+@media (prefers-reduced-motion:reduce){ }
+
+.hero__inner{position:relative;z-index:3;width:100%;padding-block:var(--pad-y)}
+.hero h1{font-size:var(--fs-display);margin:.75rem 0 1rem}
+.hero__cta{margin-top:1.75rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.hero__inner{padding-block:var(--pad-top) var(--pad-y)}
+.hero h1{margin:.4rem 0 0;font-size:clamp(1.9rem,3.7vw,3.1rem);line-height:.96}
+.hero__cta{margin-top:.75rem}
+.hero__cta .btn{height:2.75rem;padding:0 1.1rem;font-size:.875rem}
+.hero__chips{display:flex;gap:.625rem;width:min(34rem,62%);margin-top:auto}
+.hero__chips .glass{flex:1}
+@media (max-width:60rem){
+  .hero__chips{width:100%;flex-direction:column}
+}
+@media (max-width:60rem){
+  .hero__grid{grid-template-columns:1fr}
+  .hero__chips{justify-self:start;width:min(22rem,100%);margin-top:2rem}
+}
+
+/* Scroll-Hinweis */
+
+.hero__cue i{display:block;width:1px;height:1.75rem;background:currentColor;opacity:.4;
+  animation:cue 2.4s var(--ease-io) infinite}
+@keyframes cue{0%,100%{transform:scaleY(.35);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
+@media (max-height:43.75rem){.hero__cue{display:none}}
+
+/* ==========================================================================
+   GLAS-DATENKARTEN — das Signature-Element der Referenz
+   ========================================================================== */
+.glass{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:.875rem;
+  padding:.875rem 1rem;
+  color:#fff;
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  backdrop-filter:blur(14px) saturate(1.2);
+  box-shadow:0 1.25rem 2.5rem rgba(0,0,0,.22);
+}
+.glass__top{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.glass__label{
+  font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;font-weight:600;
+  color:rgba(255,255,255,.62);
+}
+.glass__badge{
+  font-size:.6875rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;
+  border:1px solid var(--accent);color:var(--accent);white-space:nowrap;
+}
+.glass__value{font-family:"Clash Grotesk",sans-serif;font-size:1.5rem;font-weight:500;
+  letter-spacing:-.02em;line-height:1.1;margin-top:.35rem}
+.glass__value small{font-size:.75em;opacity:.7;font-weight:400}
+.glass__bar{
+  position:relative;height:.5rem;margin-top:.7rem;border-radius:999px;overflow:hidden;
+  background:repeating-linear-gradient(115deg,var(--glass-hatch) 0 .25rem,transparent .25rem .5rem),
+             rgba(255,255,255,.07);
+}
+.glass__fill{
+  position:absolute;inset:0 auto 0 0;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-deep));
+  width:var(--fill,0%);
+  transition:width 1.1s var(--ease-out);
+}
+.glass__meta{display:flex;gap:1.25rem;margin-top:.75rem}
+.glass__meta div{flex:1}
+.glass__meta b{display:block;font-family:"Clash Grotesk",sans-serif;font-size:1.0625rem;font-weight:500}
+
+/* Helle Variante — nur dort, wo die Karte NICHT ueber einem Foto liegt.
+   Ueber Fotos bleibt die dunkle Glasflaeche (Hero, Team, Pollenschutz, CTA). */
+#sysCards .glass{
+  background:rgba(255,255,255,.72);
+  border-color:rgba(6,186,255,.35);  /* zarte Akzent-Einfassung wie die Empfehlungskarte der Referenz */
+  color:var(--text-primary);
+  box-shadow:0 1rem 2rem rgba(16,19,23,.07);
+}
+#sysCards .glass .glass__label{color:var(--text-secondary)}
+#sysCards .glass .glass__badge{color:var(--accent-deep);border-color:var(--accent)}
+#sysCards .glass .glass__bar{
+  background:repeating-linear-gradient(115deg,rgba(16,19,23,.06) 0 .25rem,transparent .25rem .5rem),rgba(16,19,23,.05)}
+
+/* ==========================================================================
+   PRODUKTE — eine gepinnte Karte, 7 Systeme laufen durch
+   Entspricht der ring-section der Referenz (dort 3 Schritte über 6 Viewports)
+   ========================================================================== */
+.systems{}
+.systems__pin{padding-top:var(--pad-top) !important;
+  width:100%;
+  display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto;
+  justify-content:stretch;align-content:stretch;justify-items:stretch;
+  padding:var(--pad-y) var(--pad-x) 1.5rem;
+  gap:1rem;
+}
+/* Fortschrittslinien oben — eine je System */
+.systems__progress{display:flex;gap:.5rem;align-items:center}
+.systems__bar{
+  position:relative;flex:1;height:2px;border-radius:2px;
+  background:rgba(6,186,255,.30);overflow:hidden;
+}
+.systems__bar i{
+  position:absolute;inset:0 auto 0 0;width:0;
+  background:var(--accent);border-radius:2px;
+  /* keine transition — der geglaettete Scroll-Wert treibt die Breite direkt */
+}
+.systems__stage{position:relative;min-height:0;height:100%}
+.systems__shot{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(1.03);
+  transition:opacity .55s var(--ease-out),transform .8s var(--ease-out);
+}
+.systems__shot.is-active{opacity:1;transform:none}
+.systems__shot img{
+  max-height:100%;width:auto;max-width:100%;object-fit:contain;
+  border-radius:.75rem;
+}
+/* Produktclip: wird beim Scrollen durchgescrubbt (Mechanik wie der drehende
+   Ring der Referenz). Das Foto bleibt im Markup und traegt, solange der Clip
+   nicht laeuft — bei reduzierter Bewegung, Datensparmodus oder ohne JS.
+   Freistellung wie der Ring der Referenz: der Studio-Grauton wird per
+   brightness auf Weiss gehoben, die Raender per Maske weich ausgeblendet —
+   das Produkt schwebt dadurch frei auf der weissen Karte. */
+.systems__clip{
+  max-height:100%;width:auto;max-width:100%;object-fit:contain;
+  display:block;
+  filter:brightness(1.1);
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent),
+                     linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent),
+             linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);
+  mask-composite:intersect;
+}
+.systems__shot.has-clip img{display:none}
+/* Fuss wie in der Referenz: grosse Headline links, eingefasste Info-Kachel
+   rechts. Die Linie unter der Headline laeuft als ein durchgehender Pfad
+   weiter — hoch am linken Kachelrand, Radius oben links, Oberkante bis an
+   den rechten Kartenrand. */
+.systems__foot{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:0;align-items:stretch;
+}
+.systems__copy{
+  position:relative;min-height:15rem;
+  /* zarte Akzent-Linie wie der Pfad der Pollenschutz-Sektion */
+  border-bottom:1px solid rgba(6,186,255,.35);
+  padding:0 2.5rem 1.5rem 0;
+}
+.systems__text{
+  position:absolute;inset:auto 2.5rem 1.5rem 0;
+  opacity:0;transform:translateY(.5rem);
+  transition:opacity .5s var(--ease-out),transform .5s var(--ease-out);
+  pointer-events:none;
+}
+.systems__text.is-active{opacity:1;transform:none;pointer-events:auto}
+.systems__text h3{font-size:var(--fs-display);line-height:1;margin:.65rem 0 .75rem;
+  /* nur der gesetzte &shy;-Trennpunkt, keine Automatik — sonst bricht
+     "Lichtschachtabdeckung" an falscher Stelle */
+  hyphens:manual;-webkit-hyphens:manual}
+.systems__text p{color:var(--text-secondary);max-width:30rem}
+.systems__card{
+  position:relative;min-height:11.5rem;
+  border-top:1px solid rgba(6,186,255,.35);
+  border-left:1px solid rgba(6,186,255,.35);
+  border-top-left-radius:1.5rem;
+  margin-right:calc(-1 * var(--pad-x));
+  padding:1.75rem var(--pad-x) 1.25rem 1.75rem;
+}
+.systems__card .glass{position:absolute;inset:auto var(--pad-x) 1.25rem 1.75rem;opacity:0;transform:translateY(.5rem);
+  transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
+.systems__card .glass.is-active{opacity:1;transform:none}
+
+@media (max-width:60rem){
+  .systems__foot{grid-template-columns:1fr}
+  .systems__copy{min-height:12rem;border-bottom:0;padding:0}
+  .systems__text{inset:auto auto 0 0}
+  .systems__card{min-height:0;margin:1rem 0 0;border:0;border-radius:0;padding:0}
+  .systems__card .glass{position:relative;inset:auto}
+}
+
+
+/* ==========================================================================
+   GEWEBE-MAKRO — zentrierte Buehne wie die "Heart health"-Sektion der
+   Referenz: Makro-Band oben mit Linie darunter, Display-Headline,
+   Messband-Grafik mit Gewebeprobe und live tickendes Aufmass.
+   Kartenfarbe = gemessener Hintergrund des Makros (#e2e1dd), damit das
+   Bild nahtlos in der Karte aufgeht; die Raender werden weich maskiert.
+   ========================================================================== */
+.macro .pin{background:#E4E2DE}
+/* ---------- Masssektion nach Referenz „Built for peak accuracy" ----------
+   Dunkle Vollflaeche in tiefem Marken-Petrol (aus dem Akzentblau abgeleitet),
+   wenige feine Vertikallinien, Bild mittig, Headline ueberlappt links,
+   Copy + Button rechts. */
+.card--brandink .pin{background:#14252F;color:var(--text-on-dark)}
+.measure__pin{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  padding:var(--pad-top) var(--pad-x) var(--pad-y)}
+.measure__lines{position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(rgba(255,255,255,.07),rgba(255,255,255,.07)) 33.3% 0/1px 100% no-repeat,
+    linear-gradient(rgba(255,255,255,.07),rgba(255,255,255,.07)) 66.6% 0/1px 100% no-repeat}
+.measure__stage{position:relative;flex:1;display:grid;place-items:center;min-height:0}
+.measure__media{position:relative;width:min(66%,58rem);margin:0}
+.measure__media img{display:block;width:100%;height:clamp(16rem,52vh,30rem);
+  object-fit:cover;object-position:50% 45%;border-radius:.375rem}
+/* dunkler Scrim an den Bildflanken: dort liegen Headline und Copy lesbar
+   auf dem hellen Produktfoto (die Referenz hat diese Zonen im Foto selbst) */
+.measure__media::after{content:"";position:absolute;inset:0;border-radius:.375rem;
+  background:linear-gradient(90deg,rgba(10,22,29,.62),transparent 38% 68%,rgba(10,22,29,.5))}
+.measure__title{position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:2;
+  color:#fff;font-size:var(--fs-display);line-height:1.02;margin:0}
+.measure__aside{position:absolute;right:0;top:40%;z-index:2;
+  width:clamp(13rem,calc((100% - min(66%,58rem))/2 + 4rem),19rem)}
+.measure__aside p{color:#fff;font-size:1.0625rem;line-height:1.5;margin:0 0 1.25rem}
+.btn--onink{background:#fff;color:var(--bg-inverse)}
+.btn--onink:hover{background:#EDF1F3;transform:translateY(-1px)}
+/* Scroll-Cue: Pfeil unten mittig, wie in der Referenz */
+.measure__cue{position:absolute;left:50%;bottom:1.25rem;transform:translateX(-50%);z-index:3;
+  display:flex;align-items:center;justify-content:center;width:2.75rem;height:2.75rem;
+  border-radius:50%;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
+  animation:cueBob 2.2s ease-in-out infinite}
+.measure__cue:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+@keyframes cueBob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,.4rem)}}
+@media (prefers-reduced-motion:reduce){.measure__cue{animation:none}}
+/* Desktop: Sektion pinnt, das Bild waechst mit --p von der Kartengroesse
+   bis full-bleed — wie die Referenz („oeffnet sich und fuellt sich auf") */
+@media (min-width:64rem) and (min-height:43.75rem){
+  /* Stage ohne eigenen Positionskontext: das Bild dehnt sich bis zur
+     Kartenkante aus (Anker ist der Pin), Texte haengen an den Pin-Raendern */
+  .measure__stage{position:static}
+  .measure__pin .eyebrow{position:relative;z-index:2}
+  .measure__title,.measure__aside{position:absolute;z-index:2}
+  .measure__title{left:var(--pad-x)}
+  .measure__aside{right:var(--pad-x)}
+  .measure__media{position:absolute;inset:0;margin:auto;z-index:0;
+    --t:clamp(0,(var(--p,0) - .08)/.72,1);
+    width:calc((66 + 34*var(--t))*1%);
+    height:calc(clamp(16rem,52vh,30rem)*(1 - var(--t)) + 100%*var(--t))}
+  .measure__media img{height:100%;border-radius:calc(.375rem*(1 - var(--t)))}
+  .measure__media::after{border-radius:calc(.375rem*(1 - var(--t)))}
+}
+/* Unter Desktopbreite: gestapelt statt ueberlappt, ohne Aufweitung */
+@media (max-width:63.99rem),(max-height:43.75rem){
+  .measure__stage{display:flex;flex-direction:column;align-items:flex-start;gap:1.5rem}
+  .measure__media{width:100%}
+  .measure__media img{height:clamp(12rem,38vh,18rem)}
+  .measure__title,.measure__aside{position:static;transform:none;width:auto}
+  .measure__cue{display:none}
+}
+
+.macro__pin{position:relative;padding-top:var(--pad-top) !important;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(.8rem,1.7vh,1.4rem);
+  padding:var(--pad-y) var(--pad-x);text-align:center;overflow:hidden}
+/* feine vertikale Haarlinien hinter dem Makro — Textur wie in der Referenz */
+.macro__lines{position:absolute;inset:0 0 auto 0;height:58%;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(16,19,23,.045) 0 1px,transparent 1px 12px);
+  -webkit-mask-image:linear-gradient(#000 55%,transparent);
+  mask-image:linear-gradient(#000 55%,transparent)}
+.macro__media{position:relative;width:min(62rem,100%);margin:0;overflow:hidden;
+  border-bottom:1px solid rgba(16,19,23,.16)}
+.macro__media img{display:block;width:100%;height:clamp(13rem,36vh,23rem);
+  object-fit:cover;object-position:50% 38%;
+  transform:scale(calc(.96 + .08 * var(--p,0)));transform-origin:50% 100%;
+  will-change:transform;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent),
+                     linear-gradient(to bottom,transparent,#000 9%,#000 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent),
+             linear-gradient(to bottom,transparent,#000 9%,#000 100%);
+  mask-composite:intersect}
+.macro__pin h2{font-size:var(--fs-display);line-height:1.02;margin:0}
+.macro__pin .lead{max-width:40rem;margin-inline:auto}
+/* Messband: Skalenstriche links und rechts, in der Mitte eine Gewebeprobe —
+   das Pendant zu Waveform + Herz der Referenz */
+.macro__viz{display:flex;align-items:center;justify-content:center;gap:1.25rem;
+  width:min(46rem,100%)}
+.macro__ticks{flex:1;height:1.6rem;
+  background:
+    repeating-linear-gradient(90deg,rgba(16,19,23,.26) 0 1px,transparent 1px 6px) 50% 50%/100% 55% no-repeat,
+    repeating-linear-gradient(90deg,rgba(16,19,23,.34) 0 1px,transparent 1px 30px) 50% 50%/100% 100% no-repeat}
+.macro__swatch{flex:0 0 auto;width:2.9rem;height:2.9rem;border-radius:.8rem;
+  background:
+    repeating-linear-gradient(90deg,rgba(16,19,23,.15) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(0deg,rgba(16,19,23,.15) 0 1px,transparent 1px 4px),
+    #FDFDFC;
+  border:1px solid rgba(6,186,255,.45);
+  box-shadow:0 .6rem 1.2rem rgba(16,19,23,.10)}
+/* etwas kompakter als der grosse Zaehler der Lichtschacht-Sektion,
+   das Unterlabel klein wie das "bpm" der Referenz */
+.macro__counter{margin:0;font-size:clamp(2.75rem,5vw,4.25rem)}
+/* p-Selektor: gewinnt gegen die spaeter notierte .counter-Grundregel */
+p.macro__counter span:last-child{font-size:.9375rem}
+@media (max-height:43.75rem){
+  .macro__media img{height:clamp(8rem,24vh,12rem)}
+  .macro__pin .lead{display:none}
+}
+
+/* ==========================================================================
+   POLLENSCHUTZ — Feature-Sektion nach Referenz („DEEP SLEEP"-Abschnitt):
+   Display-Headline und zwei Textspalten links, hohes Foto rechts mit
+   breiter Glas-Statusleiste, Haarlinie unten ueber die volle Kartenbreite.
+   Gleicher warmer Steinton wie die Makro-Sektion davor.
+   ========================================================================== */
+/* Referenz-Passage: Pollenschutz und Lichtschacht laufen als EINE warme,
+   randlose Flaeche durch (wie sleep- und ring-Sektion der Referenz).
+   Beide Karten verlieren Radius, Seitenraender und Fugen; die Haarlinie
+   unten (.split__rule) bleibt als einzige Trennung. */
+.split .pin{background:#E4E2DE;border-radius:0}
+.stack .split{margin:0}
+.split + .pinwrap{margin-top:0}
+.stack .wx{margin-inline:0}
+.wx .pin{background:#E4E2DE}
+.split__pin{position:relative;padding-top:var(--pad-top) !important;
+  display:flex;flex-direction:column;gap:1rem;
+  padding:var(--pad-y) var(--pad-x) 3rem;
+  justify-content:flex-start}
+.split__grid{flex:1;min-height:0;
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  align-items:stretch;gap:clamp(1.5rem,4vw,4rem)}
+/* links: Headline mittig, Textspalten unten — wie die Referenz */
+.split__copy{display:flex;flex-direction:column;justify-content:flex-end;min-height:0}
+.split__copy h2{font-size:var(--fs-display);line-height:1.02;margin:.75rem 0 clamp(2rem,9vh,5rem)}
+.split__cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.25rem,2.5vw,2.5rem)}
+.split__cols p{color:var(--text-secondary);font-size:var(--fs-small)}
+/* rechts: grosse Stat-Kachel oben, Foto darunter — "LAST NIGHT SLEEP" der Referenz */
+.split__right{display:flex;flex-direction:column;gap:var(--gap);min-height:0}
+.split__stat{flex:0 0 auto;min-height:clamp(8rem,26vh,12.5rem);
+  border:1px solid rgba(6,186,255,.35);border-radius:var(--radius);
+  background:rgba(255,255,255,.30);
+  padding:1.25rem 1.5rem;display:flex;flex-direction:column}
+.split__statlabel{font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:600;color:var(--text-secondary)}
+.split__statvalue{font-family:"Clash Grotesk",sans-serif;font-weight:500;
+  font-size:clamp(3.25rem,5.5vw,5rem);line-height:1;letter-spacing:-.02em;
+  color:#97918A;margin:auto 0}
+.split__statprefix{display:block;font-size:1rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#97918A;margin-bottom:.3rem}
+.split__statvalue sup{font-size:.34em;vertical-align:baseline;
+  position:relative;top:-1.05em;margin-right:.25em}
+.split__media{position:relative;border-radius:var(--radius);overflow:hidden;
+  flex:1;min-height:14rem}
+.split__media img{width:100%;height:100%;object-fit:cover}
+.split__media .glass{position:absolute;left:1rem;right:1rem;bottom:1rem}
+/* breite Statusleiste — Pendant zur "DEEP SLEEP"-Karte der Referenz */
+.glass--bar{display:flex;align-items:center;gap:1rem}
+.glass--bar .glass__label b{color:#fff;font-weight:600;margin-left:.3rem}
+.glass__cell{flex:1;min-width:0}
+.glass__cell--r{text-align:right}
+.glass__segs{display:flex;gap:.3rem;margin-top:.55rem}
+.glass__segs i{position:relative;height:.5rem;border-radius:999px;flex:1;
+  background:rgba(255,255,255,.18)}
+/* Fuellung laedt auf, sobald der Reveal-Observer .is-in auf .split__media setzt */
+.glass__segs i::after{content:"";position:absolute;inset:0;border-radius:999px;
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .9s cubic-bezier(.22,.61,.21,1) .25s}
+.glass__segs .seg-a::after{background:var(--accent)}
+.glass__segs .seg-b::after{background:rgba(255,255,255,.85);transition-delay:.45s}
+.glass__segs .seg-c::after{background:repeating-linear-gradient(115deg,rgba(255,255,255,.4) 0 .2rem,transparent .2rem .45rem);transition-delay:.65s}
+.split__media.is-in .glass__segs i::after{transform:scaleX(1)}
+/* Gewebe-Namen als Tooltip ueber dem jeweiligen Segment */
+.glass__segs i::before,.glass__ico::before{content:attr(data-tip);position:absolute;bottom:calc(100% + .65rem);
+  left:50%;translate:-50% .3rem;width:max-content;max-width:14rem;
+  padding:.5rem .7rem;border-radius:.6rem;
+  background:rgba(16,19,23,.88);color:#fff;
+  font-size:.75rem;font-weight:500;font-style:normal;line-height:1.4;
+  letter-spacing:0;text-transform:none;white-space:normal;text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .25s ease,translate .25s ease}
+.glass__segs .seg-a::before{left:0;translate:0 .3rem}
+.glass__segs .seg-c::before{left:auto;right:0;translate:0 .3rem}
+.glass__segs i:hover::before,.glass__ico:hover::before{opacity:1;translate:-50% 0}
+.glass__segs .seg-a:hover::before,.glass__segs .seg-c:hover::before{translate:0 0}
+/* Wetter-Chips: Schutz gilt am Tag, in der Nacht und bei Regen */
+.glass__icons{flex:0 0 auto;display:flex;gap:.35rem}
+.glass__ico{position:relative;width:2rem;height:2rem;border-radius:999px;
+  border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;color:#fff}
+.glass__ico svg{width:1.05rem;height:1.05rem;display:block}
+.glass__big{font-family:"Clash Grotesk",sans-serif;font-size:1.35rem;font-weight:500;
+  letter-spacing:-.02em;margin-top:.3rem;white-space:nowrap}
+.glass__moon{opacity:.75;font-size:.9em}
+/* Linienfuehrung wie die Referenz — ein PFAD, keine Box:
+   Oben laeuft eine Haarlinie vom linken Kartenrand herueber und muendet
+   mit dem gerundeten Eck direkt in die Einfassung der Stat-Kachel, die an
+   der Sektionsoberkante sitzt und rechts aus dem Bild laeuft. Unten liegt
+   nur die einzelne Linie auf Hoehe der Fotounterkante, sie endet kurz vor
+   dem Foto. Farbe: die zarte Akzent-Einfassung der Produktkarten. */
+.split__pin{--sgap:clamp(1.5rem,4vw,4rem);--sline:rgba(6,186,255,.35)}
+.split__rule{position:absolute;left:0;bottom:3rem;
+  right:calc(var(--pad-x) + (100% - 2*var(--pad-x) - var(--sgap))*.475 + var(--sgap)*.5);
+  border-top:1px solid var(--sline);pointer-events:none}
+/* Eyebrow oben in der Textspalte, Headline+Texte bleiben unten */
+.split__copy .eyebrow{margin-bottom:auto}
+/* Referenz: Stat-Kachel und Foto bluten bis an die rechte Kante; die
+   rechte Spalte zieht sich bis an die Sektionsoberkante hoch, damit die
+   Stat-Kachel dort sitzt, wo die obere Haarlinie in sie einmuendet. */
+@media (min-width:64rem){
+  /* Luft zwischen Textspalten und der unteren Linie */
+  .split__copy{padding-bottom:2.75rem}
+  /* 2.75rem = 1.25rem (Hoehe der Haarlinie) + 1.5rem (Bogen): die Kachel
+     beginnt genau dort, wo der Bogen der oberen Linie senkrecht wird */
+  .split__right{margin-right:calc(-1 * var(--pad-x));
+    margin-top:calc(2.75rem - var(--pad-top));
+    height:calc(100% + var(--pad-top) - 2.75rem)}
+  .split__media{border-radius:var(--radius) 0 0 var(--radius)}
+  /* Stat-Bereich wie die Referenz: KEIN eigenes Rechteck, keine Fuellung —
+     nur der offene Linienpfad. Linke Kante und untere Linie gehoeren zur
+     Kachel (Bogen unten links, Linie laeuft rechts aus dem Bild), der
+     Schwung oben kommt von .split__pin::before. Oben und rechts bleibt
+     alles offen. */
+  .split__stat{min-height:calc(clamp(13rem,32vh,19.75rem) - 1.5rem);
+    padding:2.25rem 2.5rem;background:transparent;
+    border:0;border-left:1px solid var(--sline);border-bottom:1px solid var(--sline);
+    border-radius:0 0 0 1.5rem}
+  .split__statvalue{margin:.6rem 0 0}
+  /* obere Haarlinie: laeuft vom linken Kartenrand herueber und biegt mit
+     einem 1.5rem-Bogen nach unten — der rechte Rand des Pseudo-Elements
+     liegt deckungsgleich auf der linken Kante der Stat-Kachel, die direkt
+     darunter ansetzt: EIN durchgehender Pfad, keine Box. */
+  .split__pin::before{content:"";position:absolute;top:1.25rem;left:0;
+    right:calc((100% - 2*var(--pad-x) - var(--sgap))*.475 + var(--pad-x) - 1px);
+    height:1.5rem;
+    border-top:1px solid var(--sline);border-right:1px solid var(--sline);
+    border-top-right-radius:1.5rem;pointer-events:none}
+}
+/* Lichtschacht pinnt randlos ueber die volle Hoehe (Karte ist fugenlos) */
+@media (min-width:64rem) and (min-height:43.75rem){
+  #lichtschacht{top:0;height:100dvh}
+}
+@media (max-width:63.99rem){
+  .split__grid{grid-template-columns:1fr}
+  .split__cols{grid-template-columns:1fr;gap:1rem}
+  .split__copy h2{margin-bottom:1.5rem}
+  .split__stat{min-height:7rem;margin-top:1.75rem}
+  .split__media{flex:none;height:auto;aspect-ratio:4/3;min-height:0}
+  .split__rule{display:none}
+  .glass__icons{display:none}
+  .glass__big{font-size:1.1rem;white-space:normal}
+}
+
+/* ==========================================================================
+   LICHTSCHACHT — zentriert, mit hochzählender Zahl
+   ========================================================================== */
+.center__pin{padding-top:var(--pad-top);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:1.5rem;padding:var(--pad-y) var(--pad-x)}
+.center__pin h2{font-size:var(--fs-h2);max-width:20ch}
+.center__pin .lead{margin-inline:auto;text-align:center}
+/* ---------- Wetter-Bühne ----------
+   Drei Zustände in einer grossen Karte, gesteuert ueber --p der gepinnten
+   Sektion: 0–.38 Laub faellt aufs Gitter (Clip), .38–.68 Nacht mit Spinne,
+   ab .68 Sturm und Regen. Spaetere Phasen liegen als Ebenen darueber und
+   blenden ueber --p ein — die Clips selbst startet/pausiert main.js. */
+.wx__pin{position:relative;gap:1.1rem}
+.wx__pin > *{position:relative;z-index:1}
+/* feine Vertikallinien wie in der Referenz — huellen die Buehne ein */
+.wx__lines{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(16,19,23,.045) 0 1px,transparent 1px 18px);
+  -webkit-mask-image:linear-gradient(transparent,#000 14%,#000 80%,transparent);
+  mask-image:linear-gradient(transparent,#000 14%,#000 80%,transparent)}
+.wx__stage{width:min(76rem,100%,calc(58vh*16/9));margin-block:.25rem}
+.wx__frame{position:relative;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;
+  background:#F4F5F6;box-shadow:0 1.5rem 3rem rgba(16,19,23,.10)}
+/* isolation: das Video (z-index:1) darf nur innerhalb seiner Phase oben
+   liegen — sonst uebermalt es die spaeteren Wetter-Ebenen */
+.wx__phase{position:absolute;inset:0;isolation:isolate}
+.wx__phase img,.wx__phase video{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;border-radius:0}
+/* Poster traegt, bis der Clip spielt; danach liegt das Video darueber */
+.wx__phase video{z-index:1}
+/* Desktop zeigt als Ausgangsbild die saubere Abdeckung (Startframe des
+   Laub-Clips); das Laub-Standbild ist der statische Ersatz fuer mobil. */
+.wx__still--laub{display:none}
+.wx__phase--nacht{opacity:clamp(0,(var(--p,0) - .36)/.1,1)}
+.wx__phase--regen{opacity:clamp(0,(var(--p,0) - .66)/.1,1)}
+/* Statusleiste: welcher Schutz gerade zu sehen ist */
+.wx__bar{position:absolute;left:1rem;right:1rem;bottom:1rem;z-index:5;
+  display:flex;align-items:center;gap:1rem}
+.wx__item{flex:1;display:flex;align-items:center;gap:.7rem;min-width:0;
+  opacity:calc(.35 + .65 * var(--on,0));transition:opacity .2s linear}
+.wx__item[data-i="0"]{--on:calc(1 - clamp(0,(var(--p,0) - .36)/.1,1))}
+.wx__item[data-i="1"]{--on:calc(clamp(0,(var(--p,0) - .36)/.1,1) - clamp(0,(var(--p,0) - .66)/.1,1))}
+.wx__item[data-i="2"]{--on:clamp(0,(var(--p,0) - .66)/.1,1)}
+.wx__item .glass__ico{flex:0 0 auto}
+.wx__txt{min-width:0}
+.wx__big{font-family:"Clash Grotesk",sans-serif;font-size:1.15rem;font-weight:500;
+  letter-spacing:-.02em;margin-top:.15rem;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+/* Gepinnter Desktop: die Buehne traegt die Karte allein — die Faktenzeile
+   laege im Reveal-Totbereich der gepinnten Karte und entfaellt hier
+   (mobil bleibt sie unter dem Standbild stehen). */
+@media (min-width:64rem) and (min-height:43.75rem){
+  .wx__pin .facts{display:none}
+}
+/* Kurze Displays: Buehne kleiner */
+@media (max-height:50rem){
+  .wx__stage{width:min(76rem,100%,calc(44vh*16/9))}
+}
+/* Gepinnter Desktop: die Buehne gross wie der Ring der Referenz — sie
+   nutzt die volle Resthoehe der Karte und setzt mit der Unterkante auf dem
+   Kartenrand auf (das unterste Stueck Wiese laeuft wie der Ring aus der
+   Sektion). Das Format bleibt 16:9, dadurch mittig mit Luft an den Seiten
+   und die Szene beim Scrollen jederzeit als Ganzes erkennbar. Die
+   Wetter-Phasen laufen unveraendert ueber --p. */
+@media (min-width:64rem) and (min-height:43.75rem){
+  .wx__pin .wx__stage{flex:1;min-height:0;width:100%;
+    display:flex;justify-content:center;
+    margin-block:1rem calc(-1*var(--pad-y))}
+  .wx__pin .wx__frame{height:100%;aspect-ratio:16/9;max-width:100%;
+    border-radius:var(--radius) var(--radius) 0 0}
+  .wx__pin .wx__bar{left:1.25rem;right:1.25rem;bottom:calc(var(--pad-y) + 1.25rem)}
+}
+.counter{font-family:"Clash Grotesk",sans-serif;font-weight:500;letter-spacing:-.03em;
+  font-size:clamp(3rem,7vw,5.5rem);line-height:1}
+/* nur der letzte Span ist das Unterlabel — der erste ist die Zahl selbst */
+.counter span:last-child{font-size:.32em;letter-spacing:0;color:var(--text-secondary);
+  display:block;margin-top:.35rem;font-family:"Inter",sans-serif;font-weight:500}
+.facts{display:flex;flex-wrap:wrap;gap:clamp(1.5rem,4vw,3.5rem);justify-content:center;
+  margin-top:.5rem}
+.facts div{text-align:center}
+.facts b{display:block;font-family:"Clash Grotesk",sans-serif;font-weight:500;
+  font-size:clamp(1.5rem,2.5vw,2.25rem);letter-spacing:-.02em}
+.facts span{font-size:var(--fs-caption);color:var(--text-secondary);
+  letter-spacing:.06em;text-transform:uppercase}
+.on-dark .facts span{color:var(--text-on-dark-dim)}
+
+/* ==========================================================================
+   TESTIMONIALS — zweispaltig: Bildkarte + Zitatkarte (wie Referenz)
+   ========================================================================== */
+/* Referenz-Passage: die warme Flaeche der Wetter-Sektion laeuft ohne Fuge
+   unter die Kundenstimmen weiter und verlaeuft dort weich in den Steinton
+   der Ablauf-Sektion (Ring → Testimonials der Referenz: eine Flaeche mit
+   sanftem Farbverlauf, kein Farbsprung, kein heller Zwischenstreifen). */
+.pinwrap:has(> .voices){margin-top:0;
+  /* auch die schmalen Streifen ober-/unterhalb des gepinnten Bereichs
+     tragen den Verlauf — sonst blitzt dort der kuehle Seitengrund durch */
+  background:linear-gradient(180deg,#E4E2DE,var(--bg-stone))}
+.pinwrap:has(> .voices) + .card{margin-top:0}
+.stack .voices{margin-inline:0}
+.voices .pin{border-radius:0;
+  background:linear-gradient(180deg,#E4E2DE 0%,#E4E2DE 22%,var(--bg-stone) 92%)}
+.voices__pin{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:var(--gap);padding:var(--gap)}
+.voices__media{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--bg-stone)}
+.voices__media img{width:100%;height:100%;object-fit:cover}
+.voices__media .glass{position:absolute;left:1.25rem;right:1.25rem;bottom:1.25rem}
+/* Linienpfad unten rechts in der Zitatkarte (wie die Referenz): Oberkante
+   laeuft rechts aus der Karte, Bogen oben links, Kante hinunter, Bogen
+   unten in die Haarlinie, die nach links laeuft — darin die Wortmarke
+   ausgegraut. Farbe: die zarte Akzent-Linie der uebrigen Sektionen. */
+.voices__brand{position:absolute;right:0;bottom:3.25rem;z-index:0;
+  width:min(42%,20rem);height:5.75rem;pointer-events:none;
+  border-top:1px solid rgba(6,186,255,.35);border-left:1px solid rgba(6,186,255,.35);
+  border-top-left-radius:1.5rem;
+  display:grid;place-items:center}
+.voices__brand img{height:2.6rem;width:auto;opacity:.3;
+  filter:grayscale(1);transform:translateY(1.4rem)}
+/* Haarlinie: setzt am unteren Ende der linken Kante an, Bogen nach links
+   unten, laeuft aus der Karte (overflow der Zitatkarte schneidet sie ab) */
+.voices__brand::before{content:"";position:absolute;
+  top:100%;right:calc(100% - 1px);width:100vw;height:1.5rem;
+  border-bottom:1px solid rgba(6,186,255,.35);border-right:1px solid rgba(6,186,255,.35);
+  border-bottom-right-radius:1.5rem}
+@media (max-width:63.99rem){.voices__brand{display:none}}
+.voices__quotes{position:relative;background:var(--bg-card);box-shadow:0 1px 2px rgba(0,0,0,.04);border-radius:var(--radius);
+  overflow:hidden;display:flex;align-items:center;padding:clamp(1.5rem,4vw,4rem)}
+.voice{
+  position:absolute;left:clamp(1.5rem,4vw,4rem);right:clamp(1.5rem,4vw,4rem);
+  opacity:0;transform:translateY(.75rem);
+  transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);
+  pointer-events:none;
+}
+.voice.is-active{opacity:1;transform:none;pointer-events:auto}
+.voice__avatar{width:3.25rem;height:3.25rem;border-radius:999px;overflow:hidden;
+  background:var(--bg-stone);box-shadow:0 0 0 2px var(--accent);margin-bottom:1.5rem;
+  display:grid;place-items:center;color:var(--text-secondary);font-weight:600}
+.voice__avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.voice__text{font-family:"Clash Grotesk",sans-serif;font-weight:500;letter-spacing:-.02em;
+  font-size:clamp(1.375rem,2.4vw,2.125rem);line-height:1.18}
+.voice__who{margin-top:1.25rem;color:var(--text-secondary);font-size:var(--fs-small)}
+/* Platzhalter sichtbar kennzeichnen — muss vor Livegang raus */
+.voice[data-platzhalter] .voice__text{color:#9AA3AB}
+.voice__flag{display:inline-block;margin-top:1rem;font-size:.6875rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:#B45309;
+  background:#FEF3C7;border:1px solid #FCD34D;border-radius:999px;padding:.2rem .6rem}
+@media (max-width:60rem){
+  .voices__pin{grid-template-columns:1fr;height:auto}
+  .voices__media{aspect-ratio:4/3}
+  .voices__quotes{padding:2rem;min-height:20rem}
+  .voice{position:static;opacity:1;transform:none;display:none}
+  .voice.is-active{display:block}
+}
+
+/* ==========================================================================
+   ABLAUF + CTA
+   ========================================================================== */
+.cta__pin{padding-top:var(--pad-top);justify-content:stretch;align-content:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:center;gap:clamp(1.5rem,4vw,4rem);padding:var(--pad-y) var(--pad-x)}
+.cta__copy h2{font-size:var(--fs-h2);margin-bottom:1rem}
+.steps{display:grid;gap:1.25rem;margin-top:2rem}
+.step{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start}
+.step__no{width:2.25rem;height:2.25rem;border-radius:.625rem;display:grid;place-items:center;
+  background:var(--accent);color:#04222E;font-weight:700;font-family:"Clash Grotesk",sans-serif}
+.step h3{font-size:var(--fs-h3);margin-bottom:.25rem}
+.step p{color:var(--text-secondary);font-size:var(--fs-small)}
+.on-dark .step p{color:var(--text-on-dark-dim)}
+.cta__media{position:relative;border-radius:var(--radius);overflow:hidden;
+  height:min(32rem,68%);min-height:18rem}
+.cta__media img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+.cta__media .glass{position:absolute;left:1rem;right:1rem;bottom:1rem}
+@media (max-width:60rem){
+  .cta__pin{padding-top:var(--pad-top);justify-content:stretch;align-content:center;grid-template-columns:1fr;height:auto}
+  .cta__media{height:auto;aspect-ratio:4/3;min-height:0;order:-1}
+}
+
+/* ==========================================================================
+   FAQ — Karten-Marquee: drei endlos laufende Reihen (Referenzkomponente
+   "habit-faq-scroller"). Sanfter Hellblau-Verlauf im Grund (unser Akzent
+   statt des Vorlagen-Blaus), weiche Kantenmasken links/rechts, Hover haelt
+   die Reihe an, prefers-reduced-motion stoppt alles.
+   ========================================================================== */
+.faq .pin{background:
+  linear-gradient(180deg,rgba(6,186,255,.13) 0%,rgba(6,186,255,.05) 40%,rgba(6,186,255,0) 75%),
+  var(--bg-page)}
+.faq__pin{padding:var(--pad-top) 0 var(--pad-y);
+  display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(2rem,4.5vh,3.25rem)}
+.faq h2{font-size:var(--fs-h2)}
+.faq__head{text-align:center;max-width:46rem;margin-inline:auto;padding-inline:var(--pad-x)}
+.faq__head .lead{margin:1rem auto 0;text-align:center}
+.faq__head a{text-decoration:underline}
+.faq__rows{display:flex;flex-direction:column;gap:1.25rem;width:100%}
+.faq__row{overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.faq__track{display:flex;width:max-content}
+.faq__rows.is-ready .faq__track{animation:faq-scroll var(--dur,60s) linear infinite}
+.faq__row--rev .faq__track{animation-direction:reverse}
+.faq__row:hover .faq__track{animation-play-state:paused}
+.faq__set{flex:0 0 auto;display:flex;align-items:stretch;gap:1.25rem;padding-inline:.625rem}
+.faq__card{flex:0 0 auto;width:min(24rem,78vw);
+  background:var(--bg-card);border-radius:var(--radius);
+  box-shadow:0 1rem 2.5rem rgba(16,19,23,.07);
+  padding:1.5rem 1.6rem;display:flex;flex-direction:column;gap:.6rem}
+.faq__card h3{font-size:1.0625rem;line-height:1.35}
+.faq__card p{color:var(--text-secondary);font-size:var(--fs-small)}
+@keyframes faq-scroll{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  .faq__rows.is-ready .faq__track{animation:none}
+  .faq__row{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
+}
+@media (max-width:60rem){
+  .faq__pin{height:auto}
+}
+
+/* ==========================================================================
+   FOOTER — die Katze kommt heim (heller Aufbau nach dock.cool)
+   Der Footer ist KEINE dunkle Karte mehr, sondern laeuft in der Grundfarbe
+   der Seite weiter — man merkt den Sektionswechsel nicht. Die Outro-Szene
+   fuellt den unteren Bereich als Hintergrund; ein Verlauf in der Seitenfarbe
+   deckt sie nach oben hin ab (Seite → Szene ohne Kante, wie dock.cool).
+   Der Text steht dunkel auf der hellen Flaeche, unten liegt das grosse
+   Wasserzeichen in der Seitenfarbe auf der Szene, am Seitenende leicht
+   angeschnitten — exakt das Cooldock-Muster.
+   ========================================================================== */
+/* Welt am Seitenende: Kontakt + Footer teilen sich EINE Flaeche mit der
+   Szene als gemeinsamem Hintergrund — das Haus schimmert schon hinter dem
+   Kontaktformular durch, unten laeuft die Katze hinein. */
+.welt{position:relative;overflow:hidden;background:var(--bg-page)}
+.footer{
+  position:relative;
+  background:transparent;
+  margin:0;border-radius:0;
+  padding:clamp(3rem,6vw,5rem) var(--pad-x) clamp(17rem,36vh,24rem);
+}
+.footer__scene{position:absolute;left:0;right:0;bottom:0;
+  height:min(74rem,150vh);pointer-events:none}
+.footer__scene img,.footer__scene video{position:absolute;inset:0;
+  width:100%;height:100%;object-fit:cover;object-position:50% 100%}
+/* weiche Blende zurueck zum Startbild, wenn die Katze erneut loslaeuft */
+.footer__scene video{transition:opacity .6s var(--ease-out)}
+/* Verlauf liegt per ::after auch ueber dem per JS eingehaengten Video:
+   oben fast deckend in der Seitenfarbe (Formular bleibt ruhig, das Haus
+   nur als Ahnung), nach unten hin taucht die Szene frei auf */
+.footer__scene::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,
+    var(--bg-page) 0%,rgba(242,243,244,.94) 28%,
+    rgba(242,243,244,.78) 46%,rgba(242,243,244,.38) 62%,
+    rgba(242,243,244,0) 80%)}
+/* Inhalt von Kontakt und Footer liegt ueber der Szene */
+.welt .card,.welt .pin{position:relative;z-index:1}
+/* Kontakt hell und randlos auf der Welt-Flaeche */
+.cta--licht{margin:0}
+.cta--licht .pin{background:transparent;border-radius:0}
+.footer__grid,.footer__bottom{position:relative;z-index:1}
+@media (max-width:63.99rem){
+  /* Ein-/zweispaltiger Footer wird hoch: Szene flacher halten und den
+     Verlauf laenger deckend lassen, damit die Impressum-Zeile ruhig steht. */
+  .footer__scene{height:min(44rem,90vh)}
+  .footer__scene::after{background:linear-gradient(180deg,
+    var(--bg-page) 0%,rgba(242,243,244,.92) 34%,
+    rgba(242,243,244,.45) 56%,rgba(242,243,244,0) 78%)}
+}
+@media (max-width:36rem){
+  .footer__scene{height:30rem}
+  .footer__scene img,.footer__scene video{object-position:36% 100%}
+}
+.footer__grid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:2.5rem;
+  max-width:var(--content-max);margin-inline:auto}
+.footer__logo img{height:5rem;width:auto}
+.footer h4{font-size:var(--fs-caption);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-secondary);margin-bottom:1rem;font-weight:600}
+.footer li{margin-bottom:.6rem;font-size:var(--fs-small)}
+.footer a:hover{color:var(--accent-deep)}
+/* Fusszeile ohne Trennlinie, etwas hoeher geruckt; links unter dem
+   Copyright der Design-Credit wie auf der Tradita-Seite */
+.footer__bottom{
+  max-width:var(--content-max);margin:1.5rem auto 0;
+  display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;
+  align-items:flex-start;
+  font-size:var(--fs-caption);color:var(--text-secondary);
+}
+.footer__bottomleft{display:flex;flex-direction:column;gap:.7rem}
+.footer__credit{display:flex;align-items:center;gap:.6rem;
+  font-size:.6rem;letter-spacing:.22em;text-transform:uppercase}
+/* Hover: NUR das Logo leuchtet auf — das "Designed" bleibt ruhig
+   (uebersteuert den allgemeinen .footer a:hover-Farbwechsel) */
+.footer a.footer__credit:hover{color:var(--text-secondary)}
+.footer__credit img{height:2.25rem;width:auto;
+  /* weisses Script-Logo fuer den hellen Grund abdunkeln — kraeftig,
+     damit der Schriftzug gut lesbar bleibt */
+  filter:brightness(.18);opacity:.72;transition:opacity .3s ease}
+.footer__credit:hover img{opacity:1}
+.footer__region{margin-top:1rem;font-size:var(--fs-caption);color:var(--text-secondary);
+  max-width:26rem;line-height:1.7}
+@media (max-width:60rem){.footer__grid{grid-template-columns:1fr 1fr}}
+@media (max-width:36rem){.footer__grid{grid-template-columns:1fr}}
+
+/* ==========================================================================
+   FORMULAR
+   ========================================================================== */
+.form{display:grid;gap:.85rem}
+.form__row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.form label{display:block;font-size:var(--fs-caption);font-weight:600;margin-bottom:.35rem;
+  color:var(--text-secondary)}
+.on-dark .form label{color:var(--text-on-dark-dim)}
+.form input,.form select,.form textarea{
+  width:100%;padding:.85rem .95rem;border-radius:.625rem;
+  background:var(--bg-card);color:var(--text-primary);
+  border:1px solid var(--border);
+}
+.on-dark .form input,.on-dark .form select,.on-dark .form textarea{
+  background:rgba(255,255,255,.06);color:var(--text-on-dark);border-color:var(--border-on-dark);
+}
+.form input::placeholder,.form textarea::placeholder{color:rgba(16,19,23,.35)}
+.on-dark .form input::placeholder,.on-dark .form textarea::placeholder{color:rgba(244,246,247,.4)}
+.form textarea{min-height:6rem;resize:vertical}
+.form__check{display:flex;gap:.6rem;align-items:flex-start;font-size:var(--fs-caption);
+  color:var(--text-secondary)}
+.on-dark .form__check{color:var(--text-on-dark-dim)}
+.form__check input{width:auto;margin-top:.2rem;flex:0 0 auto}
+.form__check a{text-decoration:underline}
+.form__error{margin:0;padding:.75rem 1rem;border-radius:.5rem;background:#fdecec;color:#8a1f1f;font-size:var(--fs-caption)}
+.form__error[hidden]{display:none}
+@media (max-width:36rem){.form__row{grid-template-columns:1fr}}
+
+/* Rechtstext-Seiten */
+.legal{max-width:48rem;margin:0 auto;padding:clamp(2rem,6vw,5rem) var(--pad-x)}
+.legal h1{font-size:var(--fs-h2);margin-bottom:2rem}
+.legal h2{font-size:var(--fs-h3);margin:2.5rem 0 .75rem}
+.legal p,.legal li{color:var(--text-secondary);margin-bottom:.75rem}
+.legal ul{list-style:disc;padding-left:1.25rem}
+.legal .todo{background:#FEF3C7;border:1px solid #FCD34D;color:#92400E;
+  padding:1rem 1.25rem;border-radius:.625rem;margin:1rem 0;font-size:var(--fs-small)}
+.legal a{color:var(--accent-deep);text-decoration:underline}
+
+/* FAQ hat als einzige Karte mehr Inhalt, als in eine Bildschirmhöhe passt.
+   Auf kurzen Displays deshalb nicht pinnen, sondern mitwachsen lassen —
+   besser als ein Scrollbereich innerhalb des Scrollbereichs. */
+@media (max-height:56rem){
+  #faq{height:auto !important}
+  #faq .pin{position:relative;height:auto;min-height:0;
+    padding-block:var(--pad-top) 4rem}
+}
+
+/* ==========================================================================
+   MOBILE ANSICHT — 1:1 nach der Referenz gemessen (390×844)
+   --------------------------------------------------------------------------
+   Gemessene Werte sensiq.co mobil:
+     Gesamthöhe 11,7 vh · Nav sticky 56px auf Grundfarbe · seitliche Margins 0
+     overview + testimonials bleiben sticky, alles andere normaler Fluss
+     Radien 16px nur bei farblich abweichenden Karten
+     Headlines 42,9–48px · Innenabstand 20–24px · Footer fixed (Uncover)
+   ========================================================================== */
+@media (max-width:63.99rem){
+
+  :root{
+    --gap:0px;                       /* Referenz: margin 0 — Karten randlos */
+    --pad-x:1.5rem;                  /* 24px, wie gemessen */
+    --pad-y:2rem;
+    --pad-top:4.75rem;
+    --card-h:auto;
+    --fs-display:clamp(2.5rem,12vw,3rem);   /* 40 → 48px, Referenz: 48px */
+    --fs-h2:clamp(2.25rem,11vw,2.75rem);    /* Referenz: 42,9–46,8px */
+  }
+
+  /* ---- Nav: 56px, deckende Grundfarbe (mobil NICHT transparent) ---- */
+  .nav{
+    position:fixed;height:3.5rem;padding:.75rem .75rem 0;
+    background:var(--bg-page);pointer-events:auto;gap:.75rem;
+    transition:transform .35s var(--ease-out);
+  }
+  /* Beim Runterscrollen ausblenden — sonst liegt die helle Leiste ueber
+     dunklen Karten und dem Footer. Die Referenz zeigt dort keine Nav. */
+  .nav.is-hidden{transform:translateY(-110%)}
+  .nav__logo{margin-right:0}
+  .nav__logo img{height:2.5rem}
+  .nav__bar,.nav__home{display:none}
+  .nav__burger{display:inline-flex;width:2.75rem;height:2.75rem;
+    background:transparent;box-shadow:inset 0 0 0 1px var(--border-strong)}
+  /* Referenz mobil: rechts Icon + Burger — Telefon ersetzt den Warenkorb */
+  .nav__tel--m{display:grid;margin-left:auto;width:2.75rem;height:2.75rem}
+  .nav__burger{order:2}
+  .nav__panel{inset:3.75rem .75rem auto}
+
+  /* ---- Karten: randlos, wachsen mit dem Inhalt ---- */
+  .stack{padding-bottom:0}
+  .card{position:relative;height:auto;min-height:0;margin:0 !important}
+  .pin{height:auto;min-height:0;border-radius:var(--radius);
+    padding-block:clamp(2.5rem,9vw,3.5rem);display:block}
+  /* Radius nur bei farblich abweichenden Karten — wie am Desktop */
+  .card--ground .pin{border-radius:0}
+  .spacer{display:none}
+  .spacer[data-for="systeme"],.spacer[data-for="stimmen"]{display:block;
+    height:calc(var(--sc,0) * 100svh)}
+
+  /* ---- Hero: einspaltig gestapelt, Bild unten, Karte überlappend ---- */
+  .hero .pin{padding:0;border-radius:0}
+  .hero__pin{display:flex;flex-direction:column}
+  .hero__inner{order:1;position:static;padding:var(--pad-top) var(--pad-x) 1.5rem}
+  .hero h1{margin:.5rem 0 .875rem}
+  .hero .lead{font-size:1.0625rem}
+  .hero__cta{order:3;flex-direction:column;gap:.625rem;margin-top:1.5rem}
+  .hero__cta .btn{width:100%;justify-content:space-between;height:3.5rem}
+  .hero__pin{position:relative}
+  /* Kacheln mobil im Fluss NACH dem Text (order hinter hero__inner) —
+     nicht mehr als Overlay, sonst liegen sie ueber den Buttons */
+  .hero__chips{position:static;order:2;width:auto;margin:1.25rem var(--pad-x) 0;gap:.5rem}
+  .hero__cue{display:none}
+
+  /* ---- Hero: bleibt kurz gepinnt, damit das Zufahren des Schutzes beim
+       Scrollen sichtbar ablaeuft (Muster wie #systeme). Der Spacer liefert
+       den Scrollweg; danach schiebt sich die Produktkarte darueber. ---- */
+  /* Hero mobil NICHT gepinnt (Referenz): laeuft im Fluss, die
+     Produktkarte schiebt sich darueber. Kein Spacer. */
+  .spacer[data-for="hero"]{display:none !important}
+
+  /* ---- Systeme: bleibt gepinnt (Referenz behält overview sticky) ---- */
+  @media (min-height:40rem){
+    /* Die KARTE klebt (wie am Desktop), der Spacer liefert den Scrollweg.
+       Referenz mobil: overview 3,2 vh statt 6,0 vh am Desktop. */
+    #systeme{position:sticky;top:0;height:100svh !important;z-index:1}
+    .spacer[data-for="systeme"]{--sc:2.2}
+    #systeme .pin{height:100% !important;
+      display:flex;flex-direction:column;padding:4.25rem var(--pad-x) 1.5rem}
+    #systeme .systems__progress{display:flex;order:1;margin-bottom:1.25rem}
+    #systeme .systems__copy{order:2;position:relative;min-height:11rem}
+    #systeme .systems__text{position:absolute;inset:0 0 auto 0}
+    #systeme .systems__stage{order:3;position:relative;flex:1;min-height:0;margin:0}
+    #systeme .systems__shot{position:absolute;inset:0;margin:0;
+      display:flex;align-items:center;justify-content:center}
+    #systeme .systems__shot img{width:auto;max-width:100%;max-height:100%;
+      object-fit:contain;aspect-ratio:auto}
+    #systeme .systems__card{order:4;position:relative;min-height:7rem;margin-top:1rem}
+    #systeme .systems__card .glass{position:absolute;inset:auto 0 0 0}
+    #systeme .systems__foot{display:contents}
+  }
+
+  /* ---- Stimmen: bleibt gepinnt (Referenz behält testimonials sticky) ---- */
+  @media (min-height:40rem){
+    /* Referenz mobil: testimonials 2,4 vh statt 3,6 vh am Desktop. */
+    #stimmen{position:sticky;top:0;height:100svh !important;z-index:1}
+    .spacer[data-for="stimmen"]{--sc:1.4}
+    #stimmen .pin{height:100% !important;padding:0}
+    #stimmen .voices__pin{display:flex;flex-direction:column;height:100%;gap:0}
+    #stimmen .voices__media{flex:0 0 42%;border-radius:0;aspect-ratio:auto}
+    #stimmen .voices__quotes{flex:1;border-radius:0;padding:2rem var(--pad-x);
+      display:flex;align-items:center;min-height:0}
+    #stimmen .voice{position:absolute;left:var(--pad-x);right:var(--pad-x);display:block}
+    #stimmen .voice:not(.is-active){opacity:0;pointer-events:none}
+    #stimmen .voice.is-active{opacity:1}
+    .voice__text{font-size:clamp(1.25rem,5.5vw,1.625rem)}
+  }
+
+  /* ---- Karten NACH einer gepinnten Karte muessen darueber zeichnen ----
+     Die gepinnten Karten (#systeme, #stimmen) kleben mit z-index:1 dauerhaft
+     am Viewport. Alles Folgende bekommt z-index:2 (Basis .card ist relativ
+     positioniert), sonst laufen die Sektionen dahinter unsichtbar durch.
+     Innerhalb gleicher Ebene deckt die DOM-Reihenfolge korrekt ab. */
+  @media (min-height:40rem){
+    #systeme ~ .card{z-index:2}
+  }
+
+  /* ---- übrige Sections: einspaltig ---- */
+  .split__pin,.center__pin,.cta__pin{
+    display:block;padding:0 var(--pad-x)}
+  /* FAQ-Marquee mobil: Reihen laufen weiter randlos durch */
+  .faq__pin{padding:0}
+  .faq__head{padding-inline:var(--pad-x)}
+  .faq__rows{margin-top:1.75rem}
+  .macro__pin{align-items:flex-start;text-align:left;justify-content:flex-start;
+    padding:calc(var(--pad-top)) var(--pad-x) 2rem;gap:1.1rem}
+  .macro__pin .lead{margin-inline:0}
+  .macro__media{width:100%}
+  .macro__media img{height:clamp(10rem,26vh,14rem)}
+  .macro__viz{width:100%}
+  .split__media,.cta__media{height:auto;aspect-ratio:4/3;min-height:0;margin-top:1.75rem}
+  .cta__media{order:0}
+  .center__pin{text-align:left}
+  .center__pin .lead,.center__pin h2{margin-inline:0;text-align:left;max-width:none}
+  /* Wetter-Bühne mobil: ruhiges Standbild (Laub liegt auf dem Gitter),
+     Statusleiste als eigene Zeile darunter, keine Clips und kein Pin.
+     Der Rahmen gibt sein festes Seitenverhaeltnis auf — Bild und Leiste
+     fliessen normal untereinander. */
+  .wx__lines{display:none}
+  .wx__stage{width:100%;margin-block:1.5rem 0}
+  .wx__frame{aspect-ratio:auto;background:transparent;box-shadow:none;overflow:visible}
+  .wx__phase{position:static}
+  .wx__phase--nacht,.wx__phase--regen{display:none}
+  .wx__still--clean{display:none}
+  /* muss .wx__phase img (absolute, height:100%) schlagen */
+  .wx__phase .wx__still--laub{display:block;position:static;width:100%;height:auto;
+    border-radius:var(--radius);box-shadow:0 1rem 2rem rgba(16,19,23,.10)}
+  .wx__bar{position:static;margin-top:.75rem;flex-wrap:wrap;gap:.75rem 1rem}
+  .wx__item{opacity:1;flex:1 1 10rem}
+  .wx__big{font-size:1rem;white-space:normal}
+  .facts{justify-content:flex-start;gap:2rem 2.5rem;margin-top:1.5rem}
+  .facts div{text-align:left}
+  .steps{margin-top:1.75rem}
+  .form{margin-top:1.75rem}
+  .btn{width:100%;justify-content:space-between}
+  .nav__cta,.faq a,.legal a{width:auto}
+  .hero__cta .btn,.cta__copy .btn{width:100%}
+
+  /* ---- Footer: liegt fest und wird von der letzten Karte freigelegt ----
+     Unten bleibt Platz fuer die Katzen-Szene (siehe .footer__scene). */
+  .footer{margin:0;border-radius:0;padding:3rem var(--pad-x) clamp(13rem,28vh,18rem)}
+  .footer__grid{grid-template-columns:1fr;gap:2rem}
+  .footer__logo img{height:4rem}
+}
+
+/* Uncover-Footer wie in der Referenz: der Footer liegt fest hinter dem Stapel
+   und wird sichtbar, sobald die letzte Karte darüber hinweggescrollt ist. */
+@media (max-width:63.99rem) and (min-height:40rem){
+  /* Footer ist jetzt hell (dock.cool-Muster): der Grund hinter dem Stapel
+     traegt die Seitenfarbe, damit der Uncover-Uebergang nahtlos bleibt */
+  body{background:var(--bg-page)}
+  .stack{position:relative;z-index:1;background:var(--bg-page)}
+  .footer{position:sticky;bottom:0;z-index:0}
+}
+
+/* Teaser-Bewegung der Linse etwas weicher als die Maus-Reaktion */
+.hero.is-teasing
+
+
+/* Hero-Grundlagen nach dem Umbau: kein Vollbild-Hintergrund mehr,
+   sondern zweispaltig — Text links, freigestelltes Produkt rechts. */
+.hero .pin{padding:0}
+.hero__pin{position:relative;display:flex;flex-direction:column;justify-content:center}
+.hero__inner{position:relative;z-index:2;width:100%;padding-block:var(--pad-top) var(--pad-y)}
+.hero h1{font-size:var(--fs-display);margin:.75rem 0 1rem}
+.hero__cta{margin-top:1.75rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.hero__cue{
+  position:absolute;right:var(--pad-x);bottom:1.5rem;z-index:3;
+  display:flex;align-items:center;gap:.6rem;
+  font-size:var(--fs-caption);color:var(--text-secondary);
+}
+@media (max-width:60rem){
+  .hero__grid{grid-template-columns:1fr}
+}
+@media (max-height:43.75rem){.hero__cue{display:none}}
+
+/* Auf kurzen Displays (z. B. 1280×720) passen Headline, Text, CTA und zwei
+   Glaskarten nicht gemeinsam in eine Bildschirmhöhe. Dort nur eine Karte. */
+@media (min-width:64rem) and (max-height:50rem){
+  .hero__chips{margin-top:1.25rem;gap:.5rem}
+  .hero__chips .glass:nth-child(2){display:none}
+  .hero__cta{margin-top:1.25rem}
+  .hero h1{margin:.5rem 0 .75rem}
+}
+
+/* ---- Schwarm: Insekten fliegen zum Licht, das Gewebe hält sie auf ----
+   Liegt zwischen Basis und Reveal-Ebene: die Tiere sind hinter dem Gewebe,
+   wenn es aufgedeckt wird — dadurch wirkt der Schutz als echte Barriere. */
+.hero__inner{z-index:4}
+@media (prefers-reduced-motion:reduce){ }
+
+
+/* Hero-Kopf: muss vollständig oberhalb der Öffnungen bleiben (ab 37 % Höhe).
+   Headline daher zweizeilig halten — Spalte breit, Schrift begrenzt. */
+.hero__copy{max-width:none;min-width:0}
+.hero__copy h1{
+  font-size:clamp(1.75rem,3.2vw,2.75rem);
+  line-height:1.0;
+  text-wrap:balance;
+  margin:.4rem 0 0;
+}
+@media (max-width:60rem){
+  .hero__copy h1{font-size:clamp(1.9rem,7vw,2.5rem)}
+}
+
+
+/* Hero: Text links, Haus rechts — Aufteilung wie in der Referenz */
+.hero__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);
+  gap:clamp(1.5rem,4vw,3.5rem);align-items:center}
+.hero__copy{max-width:34rem;min-width:0}
+.hero__copy h1{font-size:clamp(2rem,3.9vw,3.4rem);line-height:.98;margin:.6rem 0 1rem}
+.hero__chips{display:flex;flex-direction:column;gap:.625rem;margin-top:1.75rem;width:min(23rem,100%)}
+/* Desktop: Kacheln schweben rechts an der Kartenkante auf Hoehe der
+   Bildmitte — wie die HRV/REM-Kacheln der Referenz; sie duerfen das Haus
+   leicht ueberlappen */
+@media (min-width:60rem){
+  .hero__chips{position:absolute;right:var(--pad-x);top:49%;margin:0;z-index:4;
+    width:clamp(15rem,20vw,19rem)}
+}
+.hero__cta{margin-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.hero__cta .btn{height:3rem;padding:0 1.25rem;font-size:.9375rem}
+@media (max-width:60rem){
+  .hero__grid{grid-template-columns:1fr}
+  .hero__copy h1{font-size:clamp(1.9rem,7.5vw,2.6rem)}
+}
+
+/* Haus größer — es soll die Karte tragen wie das Produkt in der Referenz */
+
+
+/* Glaskarten liegen im Hero jetzt auf hellem Grund, nicht mehr über dem Foto */
+.hero__chips .glass{
+  background:rgba(255,255,255,.78);
+  border-color:var(--border);
+  color:var(--text-primary);
+  box-shadow:0 1rem 2rem rgba(16,19,23,.07);
+}
+.hero__chips .glass__label{color:var(--text-secondary)}
+.hero__chips .glass__badge{color:var(--accent-deep);border-color:var(--accent)}
+.hero__chips .glass__bar{
+  background:repeating-linear-gradient(115deg,rgba(16,19,23,.06) 0 .25rem,transparent .25rem .5rem),
+             rgba(16,19,23,.05)}
+@media (max-width:60rem){ }
+
+
+/* Haus als Hintergrund der Hero-Karte — wie zuvor das Balkontür-Foto.
+   Die Bühne ist breiter als die Karte und links bündig, damit beide
+   bedienbaren Öffnungen rechts der Textspalte liegen. */
+.hero__inner{position:relative;z-index:2}
+@media (max-width:60rem){
+  .hero__copy,.hero__chips{max-width:none;width:100%}
+}
+
+
+/* Hero: Text links, freigestelltes Haus rechts — keine Kachel, kein Rahmen.
+   Steht wie das Produkt in der Referenz direkt auf dem Seitengrund. */
+.hero__inner{position:relative;z-index:2}
+.hero__grid{display:block}
+.hero__copy{max-width:min(30rem,40%)}
+.hero__chips{width:min(21rem,40%)}
+@media (max-width:60rem){
+  .hero__copy,.hero__chips{max-width:none;width:100%}
+}
+
+
+/* ---- Hero: 3D-Haus rechts, Wiese darunter, Reveal-Lupe ---- */
+@property --lens{ syntax:"<length>"; inherits:false; initial-value:0px; }
+
+.hero__bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+
+/* Der Rasen steckt jetzt im Rendering selbst — gleiche Lichtrichtung, gleicher
+   Massstab, ein einziger Schatten. Es gibt daher keine eigene Wiesen-Ebene mehr.
+   Die Studio-Grundfarbe der Renderings wurde beim Export exakt auf --bg-page
+   gezogen, deshalb sitzt die Rasenscholle nahtlos auf der Karte.
+   Ein Verlauf haelt nur noch die Textspalte links ruhig. */
+.hero__bg::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg, rgba(242,243,244,.92) 0%, rgba(242,243,244,.55) 18%,
+                                    rgba(242,243,244,.12) 32%, rgba(242,243,244,0) 44%);
+}
+
+.hero__house{
+  /* 16:9-Szene mit Katzen-Clip: Bild ist breiter als frueher, das Haus
+     sitzt mittig — Flaeche daher groesser ziehen, Weissraum darf links/
+     rechts aus der Karte laufen (hero__bg schneidet ab). Die Lupe rechnet
+     live mit dem Bildrechteck und bleibt dadurch unveraendert. */
+  position:absolute;right:-6%;top:50%;transform:translateY(-50%);
+  width:min(110%,104rem);aspect-ratio:2752/1536;pointer-events:auto;
+}
+/* Katzen-Clip liegt deckungsgleich ueber dem Startbild; Poster darunter
+   traegt, bis das Video spielt (und bei prefers-reduced-motion dauerhaft) */
+.hero__clip{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity .5s var(--ease-out)}
+.hero__clip.is-on{opacity:1}
+/* Freistellung wie bei den Produkt-Clips der Systeme-Sektion: Der
+   Studio-Grauton der 16:9-Szene wird per brightness auf die Seitenfarbe
+   gehoben, die Rechteckkanten blenden per Maske weich aus — Bild und
+   Video schweben dadurch wieder frei auf der Karte, wie frueher die
+   Alpha-Freisteller. */
+.hero__h,.hero__clip{
+  filter:brightness(1.05);
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),
+                     linear-gradient(to bottom,transparent,#000 9%,#000 90%,transparent);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),
+             linear-gradient(to bottom,transparent,#000 9%,#000 90%,transparent);
+  mask-composite:intersect;
+}
+/* Lupenglas-Inhalt im gleichen Ton, sonst wirkt das Glas dunkler */
+.hero__lens-img{filter:brightness(1.05)}
+@media (max-width:60rem){ .hero__house{right:-10%;width:120%} }
+/* Solange die Maus im Haus-Rechteck steht (Klasse aus main.js), ist die
+   Lupe der Zeiger; ausserhalb bleibt der normale Cursor. */
+@media (hover:hover) and (pointer:fine){ .hero.is-lens .hero__pin{cursor:none} }
+.hero__h{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.hero__h--hint{opacity:.14}
+
+/* ---- Lupe ----
+   Kein Markierungsring mehr, sondern echte Vergroesserung: Das Glas ist ein
+   rundes Fenster am Cursor, darin liegt eine eigene Kopie des geschuetzten
+   Renderings. Die Kopie wird so verschoben, dass der Cursorpunkt in der
+   Glasmitte sitzt, und genau um diesen Punkt skaliert — dadurch bleibt die
+   Stelle unter dem Cursor stehen und waechst, wie unter einer Lupe.
+     --lx/--ly  Cursor in Koordinaten der Bildflaeche   (aus main.js)
+     --hw/--hh  Groesse der Bildflaeche                 (aus main.js)
+     --ovw      Durchmesser des Glases                  (aus main.js)
+     --zoom     Vergroesserung */
+.hero__lens{
+  --zoom:1.7;
+  position:absolute;left:0;top:0;
+  width:var(--ovw,260px);height:var(--ovw,260px);
+  margin-left:calc(var(--ovw,260px) / -2);margin-top:calc(var(--ovw,260px) / -2);
+  transform:translate3d(var(--lx,0px),var(--ly,0px),0);
+  scale:.72;pointer-events:none;opacity:0;
+  transition:opacity .3s var(--ease-out),scale .45s var(--ease-out);
+  will-change:transform,opacity;
+}
+.hero.is-revealing .hero__lens{opacity:1;scale:1}
+
+/* Das Glas selbst: rundes Fenster. Bewusst fast unsichtbar — nur eine
+   Haarlinie und ein weicher Schatten, damit man die Kante findet, ohne dass
+   ein farbiger Ring vom Produkt ablenkt. */
+.hero__lens-glass{
+  position:absolute;inset:0;display:block;
+  border-radius:50%;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),
+             inset 0 0 0 1.5px rgba(16,19,23,.10),
+             0 1.5rem 3rem rgba(16,19,23,.16),
+             0 .25rem .75rem rgba(16,19,23,.08);
+}
+/* Der vergroesserte Ausschnitt. left/top setzen den Cursorpunkt in die
+   Glasmitte, transform-origin skaliert genau um ihn herum. */
+.hero__lens-img{
+  position:absolute;
+  /* muss den globalen Reset img{max-width:100%} aushebeln, sonst wird der
+     vergroesserte Ausschnitt auf die Glasbreite zurueckgestaucht */
+  max-width:none;max-height:none;
+  width:var(--hw,100%);height:var(--hh,100%);
+  left:calc(var(--ovw,260px) / 2 - var(--lx,0px));
+  top:calc(var(--ovw,260px) / 2 - var(--ly,0px));
+  object-fit:contain;display:block;
+  transform:scale(var(--zoom));
+  transform-origin:var(--lx,0px) var(--ly,0px);
+  will-change:transform;
+}
+/* Angedeuteter Lichtreflex — verkauft die Woelbung, ohne das Bild zu truebn. */
+.hero__lens-glass::after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:linear-gradient(148deg,
+    rgba(255,255,255,.22) 0%, rgba(255,255,255,.05) 26%,
+    rgba(255,255,255,0) 48%, rgba(16,19,23,.05) 100%);
+}
+.hero__lens-tag{
+  position:absolute;left:50%;top:100%;transform:translate(-50%,.5rem);
+  font:600 .6875rem/1 "Inter",system-ui,sans-serif;letter-spacing:.06em;
+  text-transform:uppercase;white-space:nowrap;color:var(--accent-deep);
+  background:rgba(255,255,255,.94);border:1px solid var(--accent);
+  border-radius:999px;padding:.375rem .625rem;
+  box-shadow:0 .5rem 1.25rem rgba(16,19,23,.10);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .hero__lens{display:none}
+  .hero__h--hint{opacity:.4}
+}
+
+/* ---- Touch: Schutz faehrt beim Scrollen zu ----
+   Keine Lupe. Stattdessen wird die geschuetzte Ebene (hero__h--hint) voll
+   deckend und von oben nach unten aufgedeckt, gesteuert vom Karten-Fortschritt
+   --p aus main.js. Weil beide Renderings bis auf die drei Oeffnungen
+   pixelgleich sind, sieht die Wischkante wie ein zulaufendes Rollo aus:
+   Gewebe und Abdeckung schieben sich sichtbar vor die Oeffnungen. */
+@media (hover:none) and (prefers-reduced-motion:no-preference){
+  .hero__lens{display:none}
+  .hero__h--hint{
+    opacity:1;
+    clip-path:inset(0 0 calc((1 - var(--zu,0)) * 100%) 0);
+    will-change:clip-path;
+  }
+}
+@media (max-width:60rem){
+  .hero__bg{position:relative;inset:auto}
+  .hero__house{position:relative;right:auto;top:auto;transform:none;width:100%;margin-bottom:1.5rem}
+  .hero__bg::after{display:none}
+  .hero__lens-tag{font-size:.625rem;padding:.3125rem .5rem}
+}
+
+/* ==========================================================================
+   MOBIL — Interaktion wie am Desktop (28.08.2026, nach der Referenz)
+   --------------------------------------------------------------------------
+   Nur Handy/Tablet (max-width:63.99rem); der Desktop bleibt unveraendert.
+   · Hero: Szene auf das Haus gecroppt (die Katze laeuft zwischen 25 und
+     40 % der Bildbreite, bleibt also im Ausschnitt), Kacheln liegen wie in
+     der Referenz ueber der Bildunterkante. Gepinnt passt die Karte in
+     100svh — Bildhoehe = Rest nach Text und Buttons.
+   · Scroll-Lupe: auf Touch ersetzt der Scrollweg die Maus — die Lupe
+     wandert Tuer → Fenster → Lichtschacht, danach faehrt der Schutz zu
+     (main.js setzt --lx/--ly/--zu und die Klassen is-lens/is-revealing).
+   · Wetter-Buehne: gepinnt mit den drei Clips (leichte 640px-Varianten).
+   · Footer: Ausschnitt so, dass die Katze schon am linken Rand auftaucht.
+   ========================================================================== */
+@media (max-width:63.99rem){
+  /* Hero-Szene: breiter als der Viewport, mittig — Haus und Katze gross */
+  .hero__bg{overflow:hidden;display:flex;justify-content:center}
+  .hero__house{flex:0 0 auto;width:auto;aspect-ratio:2752/1536;margin:0;max-width:none}
+  /* Scroll-Lupe: sichtbar, solange main.js is-lens setzt */
+  .hero.is-lens .hero__lens{display:block}
+  .hero__lens{--zoom:1.9}
+  .hero__chips{margin-top:1rem}
+
+  /* Footer-Szene: Katze kommt von links — Ausschnitt nach links ruecken */
+  .footer__scene{height:22rem}
+  .footer__scene img,.footer__scene video{object-position:30% 100%}
+}
+
+/* Wetter-Buehne mobil gepinnt: drei Zustaende als Clips wie am Desktop */
+@media (max-width:63.99rem) and (min-height:40rem){
+  #lichtschacht{position:sticky;top:0;height:100svh !important;z-index:1}
+  .spacer[data-for="lichtschacht"]{display:block;height:140svh}
+  #lichtschacht .pin{height:100% !important;display:flex;flex-direction:column;
+    justify-content:flex-start;gap:.75rem;padding:4.25rem var(--pad-x) 1.25rem}
+  #lichtschacht .lead{margin-bottom:.25rem}
+  #lichtschacht .wx__stage{flex:0 0 auto;width:100%;margin:.25rem 0 0}
+  #lichtschacht .wx__frame{position:relative;aspect-ratio:16/9;border-radius:var(--radius);
+    overflow:hidden;background:#F4F5F6;box-shadow:0 1rem 2rem rgba(16,19,23,.10)}
+  #lichtschacht .wx__phase{position:absolute;inset:0}
+  #lichtschacht .wx__phase--nacht,#lichtschacht .wx__phase--regen{display:block}
+  #lichtschacht .wx__still--clean{display:block}
+  #lichtschacht .wx__phase .wx__still--laub{display:none}
+  #lichtschacht .wx__bar{position:static;margin-top:.5rem;flex-direction:column;
+    align-items:stretch;gap:.5rem;padding:.75rem 1rem}
+  #lichtschacht .wx__item{flex:none;opacity:calc(.35 + .65 * var(--on,0))}
+  #lichtschacht .facts{display:none}
+}
+
+/* Nachbesserungen mobil (28.08.2026) */
+@media (max-width:63.99rem){
+  /* Der Maus-Hinweis gehoert nur auf den Desktop */
+  #hero .hero__cue{display:none}
+  /* Footer-Szene: kuerzer, und der Verlauf gibt genug frei, dass die
+     Katze (kommt von links) und die Balkontuer zu sehen sind */
+  .footer__scene{height:clamp(15rem,42vh,20rem)}
+  .footer__scene::after{background:linear-gradient(180deg,
+    var(--bg-page) 0%,rgba(242,243,244,.92) 18%,
+    rgba(242,243,244,.55) 34%,rgba(242,243,244,0) 52%)}
+}
+/* Wetter-Buehne gepinnt: die Statusleiste ist ein Kind des Rahmens — sie
+   haengt unter den Rahmen (top:100%), der Rahmen selbst bleibt 16:9. Die
+   Rundung wandert dafuer auf die Phasen, damit die Leiste nicht
+   abgeschnitten wird. */
+@media (max-width:63.99rem) and (min-height:40rem){
+  #lichtschacht .wx__frame{overflow:visible;border-radius:0;box-shadow:none;background:transparent}
+  #lichtschacht .wx__phase{border-radius:var(--radius);overflow:hidden;
+    box-shadow:0 1rem 2rem rgba(16,19,23,.10)}
+  #lichtschacht .wx__phase[data-i="0"]{background:#F4F5F6}
+  #lichtschacht .wx__bar{position:absolute;top:100%;left:0;right:0;bottom:auto;margin-top:.75rem}
+}
+@media (max-width:63.99rem){
+  /* Etikett ueber die Lupe — unten laege es hinter den Kacheln */
+  .hero__lens-tag{top:auto;bottom:100%;transform:translate(-50%,-.5rem)}
+}
+@media (max-width:63.99rem) and (min-height:40rem){
+  .hero__chips .glass__value small{display:block;font-size:.8rem;margin-top:.15rem}
+}
+/* Kurze Safari-Viewports (~660px mit Leisten): Buehne verkleinert sich,
+   damit Text, Rahmen und Statusleiste in die gepinnte Karte passen */
+@media (max-width:63.99rem) and (min-height:40rem){
+  #lichtschacht .pin{padding-top:3.75rem}
+  #lichtschacht .wx__stage{width:min(100%,calc((100svh - 30.5rem) * 16 / 9));margin-inline:auto}
+  #lichtschacht .wx__bar{padding:.6rem .9rem;gap:.35rem}
+}
+
+/* ==========================================================================
+   HERO MOBIL — 1:1 nach sensiq.co (393px gemessen, 28.08.2026)
+   Reihenfolge: Eyebrow → Headline (4 Zeilen, ~44px) → Lead → EIN dunkler
+   Vollbreiten-Button → Bild randlos (~84vw hoch, Szene auf das Haus
+   gecroppt) → zwei gestapelte Kacheln im duennen Akzentrahmen, die die
+   Bildunterkante ueberlappen. Nicht gepinnt; die Scroll-Lupe laeuft ueber
+   den Scrollweg des Bildes (main.js). Desktop unveraendert.
+   ========================================================================== */
+@media (max-width:63.99rem){
+  #hero{position:relative !important;height:auto !important;z-index:auto}
+  #hero .pin{height:auto !important;display:flex;flex-direction:column;padding:0 0 1.25rem}
+  .hero__inner{order:1;padding:calc(3.5rem + 2.25rem) var(--pad-x) 0}
+  .hero .eyebrow{margin-bottom:1.5rem}
+  #hero h1{font-size:clamp(2.5rem,11.2vw,2.75rem);line-height:1;letter-spacing:-.02em;margin:0 0 1.25rem}
+  #hero .lead{font-size:1.125rem;line-height:1.35;margin:0}
+  .hero__cta{order:0;margin:1.5rem 0 0;padding:0;flex-direction:column;gap:.625rem}
+  .hero__cta .btn{width:100%;height:3.5rem;justify-content:space-between}
+  .hero__cta .btn--ghost{display:none}     /* Referenz: ein Button */
+  .hero__bg{order:2;position:relative;margin:1.5rem 0 0;padding:0;
+    height:clamp(17rem,84vw,24rem)}
+  .hero__house{height:100%}
+  .hero__chips{order:3;position:relative;z-index:3;left:auto;right:auto;top:auto;
+    width:auto;max-width:none;margin:-1.25rem var(--pad-x) 0;
+    display:flex;flex-direction:column;gap:.5rem;padding:.5rem;
+    border:1px solid rgba(6,186,255,.55);border-radius:1.125rem}
+  .hero__chips .glass{flex:none;width:100%;padding:.875rem 1rem}
+  .hero__chips .glass__badge{display:inline-flex}
+  .hero__chips .glass__value{font-size:1.5rem}
+  .hero__chips .glass__value small{display:inline;font-size:.75em}
+}
+
+/* Honeypot-Feld des Kontaktformulars: fuer Menschen unsichtbar, Bots fuellen es aus */
+.form__hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
