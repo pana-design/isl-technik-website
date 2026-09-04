@@ -40,5 +40,8 @@ AddCharset UTF-8 .html .css .js .xml .txt
   AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml text/xml
 </IfModule>
 
+# --- Startseite: unsere index.html vor einer evtl. alten index.htm ---
+DirectoryIndex index.html index.php index.htm
+
 # --- Kein Verzeichnislisting ---
 Options -Indexes
