@@ -485,6 +485,17 @@ h1,h2,h3,.headline{
   mask-composite:intersect;
 }
 .systems__shot.has-clip img{display:none}
+/* Bis der Clip geladen ist, bleibt sein Element unsichtbar (sonst stuende
+   sein Poster neben dem Bild) — das Poster traegt solange das <img>, mit
+   derselben Freistellung wie der Clip, damit der Wechsel unsichtbar bleibt. */
+.systems__shot:not(.has-clip) .systems__clip{display:none}
+.systems__shot img.systems__poster{border-radius:0;filter:brightness(1.1);
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent),
+                     linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent),
+             linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);
+  mask-composite:intersect}
 /* Fuss wie in der Referenz: grosse Headline links, eingefasste Info-Kachel
    rechts. Die Linie unter der Headline laeuft als ein durchgehender Pfad
    weiter — hoch am linken Kachelrand, Radius oben links, Oberkante bis an

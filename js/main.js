@@ -141,6 +141,17 @@
      also genau so weit, wie gescrollt wird. Geladen wird erst kurz davor. */
   const clipReady = !reduced && !(navigator.connection || {}).saveData;
 
+  // Sobald Clips laufen duerfen, zeigt jeder Schritt von Anfang an das
+  // Startbild seines Clips (Poster) statt des Produktfotos. Vorher stand das
+  // Foto, bis der Clip geladen war — auf dem Handy sah man dadurch beim
+  // Durchscrollen sekundenlang die alten Fotos, dann sprang das Rendering rein.
+  // Das Foto bleibt im Markup als Rueckfall (kein JS, Datensparmodus, reduzierte Bewegung).
+  if (clipReady) document.querySelectorAll(".systems__shot[data-clip-poster] img").forEach(img => {
+    img.removeAttribute("srcset"); img.removeAttribute("sizes");
+    img.src = img.closest(".systems__shot").dataset.clipPoster;
+    img.classList.add("systems__poster");
+  });
+
   const ensureClip = fig => {
     if (!clipReady || !fig || fig.dataset.clipOn) return null;
     const src = fig.dataset.clip;
@@ -158,6 +169,31 @@
     if (touch) { v.load(); prime(v); }
     return v;
   };
+
+  // Alle Produktclips vorab laden, sobald die Systeme-Karte in Reichweite
+  // kommt — nacheinander, damit sie sich auf dem Handy nicht die Bandbreite
+  // streitig machen. Bisher lud jeder Clip erst, wenn sein Schritt dran war.
+  if (systems && clipReady && "IntersectionObserver" in window) {
+    const figs = [...systems.querySelectorAll(".systems__shot[data-clip]")];
+    const io = new IntersectionObserver(entries => {
+      if (!entries.some(e => e.isIntersecting)) return;
+      io.disconnect();
+      let i = 0;
+      const next = () => {
+        if (i >= figs.length) return;
+        const fig = figs[i++];
+        const v = ensureClip(fig) || fig.querySelector("video.systems__clip");
+        if (!v || v.readyState >= 2) { next(); return; }
+        let done = false;
+        const go = () => { if (done) return; done = true; next(); };
+        v.addEventListener("loadeddata", go, { once: true });
+        v.addEventListener("error", go, { once: true });
+        setTimeout(go, 4000);           // haengt ein Clip, trotzdem weitermachen
+      };
+      next();
+    }, { rootMargin: "150% 0px" });
+    io.observe(systems);
+  }
 
   const scrubClip = (g, idx, local) => {
     if (!clipReady) return;
