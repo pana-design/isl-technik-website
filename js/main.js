@@ -84,6 +84,7 @@
   if (voices) registerGroup(voices, ".voice");
 
   const sysBars = [...document.querySelectorAll("#sysProgress .systems__bar i")];
+  const voiceDots = [...document.querySelectorAll("#stimmen .voices__dots i")];
 
   /* ---------- 2b-wx · Wetter-Buehne (#lichtschacht) ----------
      Drei Zustaende als Clips: Laub faellt aufs Gitter, Nacht mit Spinne,
@@ -361,6 +362,19 @@
         g.lastIdx = idx;
       }
       if (g.scrub) scrubClip(g, idx, clamp(eff * n - idx));
+      if (g.card.el.id === "stimmen" && n > 1) {
+        // Spur-Position 0..n-1: verweilt an jedem Zitat (je 30 % des
+        // Abschnitts davor und danach), faehrt in den mittleren 40 % weich
+        // (Smoothstep) zum naechsten — mobil, CSS --vpos
+        const u = eff * (n - 1), i0 = Math.min(n - 2, Math.floor(u)), f = u - i0;
+        const m = clamp((f - 0.3) / 0.4), e = m * m * (3 - 2 * m);
+        const pos = i0 + e;
+        g.card.el.style.setProperty("--vpos", pos.toFixed(4));
+        if (voiceDots.length === n) {
+          const d = Math.round(pos);
+          if (g.dotIdx !== d) { voiceDots.forEach((el, i) => el.classList.toggle("is-active", i === d)); g.dotIdx = d; }
+        }
+      }
       if (g.card.el.id === "systeme" && sysBars.length === n) {
         for (let i = 0; i < n; i++) {
           sysBars[i].style.width = (clamp(eff * n - i) * 100).toFixed(1) + "%";

@@ -926,6 +926,10 @@ p.macro__counter span:last-child{font-size:.9375rem}
 @media (max-width:63.99rem){.voices__brand{display:none}}
 .voices__quotes{position:relative;background:var(--bg-card);box-shadow:0 1px 2px rgba(0,0,0,.04);border-radius:var(--radius);
   overflow:hidden;display:flex;align-items:center;padding:clamp(1.5rem,4vw,4rem)}
+/* Spur um die Zitate: am Desktop ohne Layoutwirkung, mobil gepinnt eine
+   scrollgetriebene Reihe (siehe Mobil-Block). Punkte nur mobil. */
+.voices__track{display:contents}
+.voices__dots{display:none}
 .voice{
   position:absolute;left:clamp(1.5rem,4vw,4rem);right:clamp(1.5rem,4vw,4rem);
   opacity:0;transform:translateY(.75rem);
@@ -1242,11 +1246,27 @@ p.macro__counter span:last-child{font-size:.9375rem}
     #stimmen .pin{height:100% !important;padding:0}
     #stimmen .voices__pin{display:flex;flex-direction:column;height:100%;gap:0}
     #stimmen .voices__media{flex:0 0 42%;border-radius:0;aspect-ratio:auto}
-    #stimmen .voices__quotes{flex:1;border-radius:0;padding:2rem var(--pad-x);
-      display:flex;align-items:center;min-height:0}
-    #stimmen .voice{position:absolute;left:var(--pad-x);right:var(--pad-x);display:block}
-    #stimmen .voice:not(.is-active){opacity:0;pointer-events:none}
-    #stimmen .voice.is-active{opacity:1}
+    /* Zitate als Spur, die mit dem Scroll mitfaehrt (05.09.2026, Pana:
+       das Ueberblenden bei stehender Karte fuehlte sich „nicht smooth" an).
+       --vpos (0..2, aus main.js, mit Verweilen an jedem Zitat) schiebt die
+       Spur um je eine Kartenbreite; das naechste Zitat lugt rechts an. */
+    #stimmen .voices__quotes{flex:1;border-radius:0;padding:1.5rem 0 3rem;
+      display:flex;flex-direction:column;justify-content:center;align-items:stretch;
+      min-height:0;position:relative}
+    #stimmen .voices__track{display:flex;align-items:center;width:100%;
+      transform:translate3d(calc(var(--vpos,0) * -84%),0,0);will-change:transform}
+    #stimmen .voice{position:relative;left:auto;right:auto;display:block;
+      flex:0 0 84%;box-sizing:border-box;padding-left:var(--pad-x);padding-right:1rem;
+      opacity:1;transform:none;transition:none;pointer-events:auto}
+    #stimmen .voices__dots{position:absolute;left:var(--pad-x);bottom:1.5rem;
+      display:flex;gap:.375rem}
+    #stimmen .voices__dots i{width:.375rem;height:.375rem;border-radius:999px;
+      background:rgba(16,19,23,.18);transition:width .3s var(--ease-out),background .3s var(--ease-out)}
+    #stimmen .voices__dots i.is-active{width:1.25rem;background:var(--accent)}
+    /* Blur-Glas im geklebten Bereich kostet iOS beim Scrollen Bilder —
+       mobil ein deckenderer Ton ohne backdrop-filter */
+    #stimmen .voices__media .glass{-webkit-backdrop-filter:none;backdrop-filter:none;
+      background:rgba(16,19,23,.55)}
     .voice__text{font-size:clamp(1.25rem,5.5vw,1.625rem)}
   }
 
