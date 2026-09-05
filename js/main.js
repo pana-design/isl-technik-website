@@ -600,47 +600,68 @@
       { x0: .520, y0: .645, x1: .730, y1: .835 },  /* Lichtschacht */
     ];
 
-    /* Touch: der Scrollweg ersetzt die Maus. Solange der Hero gepinnt ist
-       (Spacer sichtbar), wandert die Lupe ueber die ersten 72 % des Wegs
-       von Oeffnung zu Oeffnung — Balkontuer, Fenster, Lichtschacht — und
-       verweilt kurz an jeder; danach faehrt der Schutz ueber --zu zu
-       (CSS, hero__h--hint). Ohne Pin (niedrige Viewports) bleibt nur das
-       Zufahren ueber die ersten 150 px. */
+    /* Touch: der Scrollweg ersetzt die Maus (Stand 05.09.2026).
+       Die Lupe wandert nicht mehr nacheinander von Oeffnung zu Oeffnung —
+       sobald der Nutzer scrollt, stehen DREI Lupen gleichzeitig auf
+       Balkontuer, Fenster und Lichtschacht (die zwei zusaetzlichen sind
+       Klone von #heroLens, ohne Etikett) und bleiben stehen, solange das
+       Haus im Blick ist. Beim Weiterscrollen verschwinden sie, und der
+       Schutz faehrt ueber --zu von oben nach unten zu (CSS, hero__h--hint)
+       — das Haus ist geschlossen, bevor die Systeme kommen.
+       Scrollweg = bis die Bildoberkante den oberen Rand erreicht (im
+       Fluss) bzw. der Spacer (gepinnt, grosse Tablets). */
     if (!fine) {
-      const LENS_END = 0.72;
-      const ZC = ZONES.map(z => [(z.x0 + z.x1) / 2, (z.y0 + z.y1) / 2]);
-      /* Scrollweg der Sequenz: gepinnt = der Spacer; im Fluss (Referenz-
-         Layout mobil) = bis die Bildmitte den oberen Rand erreicht. */
-      let span = 150, pinned = false;
+      const LENS_ON = 0.02, LENS_OFF = 0.70;     // Lupen sichtbar
+      const ZU_A = 0.64, ZU_B = 0.96;            // Schutz faehrt zu
+      /* Mitte der Oeffnung als Bildanteil (x, y) und Glasgroesse relativ
+         zur Basis — Fenster und Lichtschacht liegen eng beieinander,
+         deshalb kleinere Glaeser, der Schacht etwas nach rechts unten. */
+      const SPOTS = [
+        [.400, .585, 1.00],   /* Balkontuer   */
+        [.595, .540, 0.80],   /* Fenster      */
+        [.650, .750, 0.88],   /* Lichtschacht */
+      ];
+      const lenses = [lens];
+      for (let i = 1; i < SPOTS.length; i++) {
+        const c = lens.cloneNode(true);
+        c.removeAttribute("id");
+        c.classList.add("hero__lens--copy", "hero__lens--" + (i + 1));
+        const tag = c.querySelector(".hero__lens-tag");
+        if (tag) tag.remove();
+        house.appendChild(c);
+        lenses.push(c);
+      }
+      const place = () => {
+        const r = house.getBoundingClientRect();
+        const base = Math.round(Math.min(Math.max(r.height * 0.24, 80), 120));
+        SPOTS.forEach(([fx, fy, k], i) => {
+          const l = lenses[i];
+          l.style.setProperty("--ovw", Math.round(base * k) + "px");
+          l.style.setProperty("--lx", (fx * r.width).toFixed(1) + "px");
+          l.style.setProperty("--ly", (fy * r.height).toFixed(1) + "px");
+        });
+      };
+      let span = 200;
       const sizeSpan = () => {
         const sp = document.querySelector('.spacer[data-for="hero"]');
         const t = sp ? sp.offsetHeight : 0;
-        pinned = t > 4;
-        if (pinned) { span = t; return; }
+        if (t > 4) { span = t; return; }             // gepinnt
         let y = 0; for (let e = house; e; e = e.offsetParent) y += e.offsetTop;
-        span = Math.max(150, Math.round(y + house.offsetHeight * 0.5));
+        span = Math.max(200, Math.round(y));         // im Fluss
       };
       const wipe = () => {
         const p = Math.min(1, Math.max(0, scrollY / span));
-        const zu = Math.min(1, Math.max(0, (p - LENS_END) / (1 - LENS_END)));
+        const z = Math.min(1, Math.max(0, (p - ZU_A) / (ZU_B - ZU_A)));
+        const zu = z * z * (3 - 2 * z);              // weich anfahren und ankommen
         hero.style.setProperty("--zu", zu.toFixed(3));
-        const on = p > 0.015 && p < LENS_END + 0.05;
-        if (on) {
-          const u = Math.min(1, p / LENS_END) * (ZC.length - 1);
-          const i = Math.min(ZC.length - 2, Math.floor(u)), f = u - i;
-          const e = f * f * (3 - 2 * f);           // weich, haelt an jeder Oeffnung
-          const fx = ZC[i][0] + (ZC[i + 1][0] - ZC[i][0]) * e;
-          const fy = ZC[i][1] + (ZC[i + 1][1] - ZC[i][1]) * e;
-          const r = house.getBoundingClientRect();
-          lens.style.setProperty("--lx", (fx * r.width).toFixed(1) + "px");
-          lens.style.setProperty("--ly", (fy * r.height).toFixed(1) + "px");
-        }
+        const on = p > LENS_ON && p < LENS_OFF;
         hero.classList.toggle("is-revealing", on);
         hero.classList.toggle("is-lens", on);
       };
-      sizeSpan(); wipe();
-      addEventListener("load", () => { sizeSpan(); sizeLens(); wipe(); }, { once: true });
-      addEventListener("resize", () => { sizeSpan(); wipe(); }, { passive: true });
+      const all = () => { sizeSpan(); place(); wipe(); };
+      all();
+      addEventListener("load", () => { sizeLens(); all(); }, { once: true });
+      addEventListener("resize", all, { passive: true });
       addEventListener("scroll", wipe, { passive: true });
       return;
     }

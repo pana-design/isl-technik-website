@@ -1587,9 +1587,14 @@ p.macro__counter span:last-child{font-size:.9375rem}
   /* Hero-Szene: breiter als der Viewport, mittig — Haus und Katze gross */
   .hero__bg{overflow:hidden;display:flex;justify-content:center}
   .hero__house{flex:0 0 auto;width:auto;aspect-ratio:2752/1536;margin:0;max-width:none}
-  /* Scroll-Lupe: sichtbar, solange main.js is-lens setzt */
+  /* Scroll-Lupen: drei Glaeser gleichzeitig (Balkontuer, Fenster,
+     Lichtschacht), sichtbar, solange main.js is-lens setzt. Groesse und
+     Position (--ovw/--lx/--ly) setzt main.js je Glas; die zwei Klone
+     tragen kein Etikett und tauchen minimal versetzt auf (05.09.2026). */
   .hero.is-lens .hero__lens{display:block}
-  .hero__lens{--zoom:1.9}
+  .hero__lens{--zoom:1.7}
+  .hero.is-revealing .hero__lens--2{transition-delay:.07s}
+  .hero.is-revealing .hero__lens--3{transition-delay:.14s}
   .hero__chips{margin-top:1rem}
 
   /* Footer-Szene: Katze kommt von links — Ausschnitt nach links ruecken */
@@ -1684,8 +1689,11 @@ p.macro__counter span:last-child{font-size:.9375rem}
   .hero__cta{order:0;margin:1.5rem 0 0;padding:0;flex-direction:column;gap:.625rem}
   .hero__cta .btn{width:100%;height:3.5rem;justify-content:space-between}
   .hero__cta .btn--ghost{display:none}     /* Referenz: ein Button */
+  /* Haus groesser (05.09.2026): 104vw statt 84vw hoch — die Szene ist
+     dann ~1.86x so breit wie der Viewport, Balkontuer (ab 29.5 %) und
+     Lichtschacht (bis 73 %) bleiben im mittigen Ausschnitt (23–77 %). */
   .hero__bg{order:2;position:relative;margin:1.5rem 0 0;padding:0;
-    height:clamp(17rem,84vw,24rem)}
+    height:clamp(20rem,104vw,28rem)}
   .hero__house{height:100%}
   .hero__chips{order:3;position:relative;z-index:3;left:auto;right:auto;top:auto;
     width:auto;max-width:none;margin:-1.25rem var(--pad-x) 0;
