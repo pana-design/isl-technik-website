@@ -49,7 +49,8 @@
     let gap = 16;
     for (const c of cards) {
       const t = parseFloat(getComputedStyle(c.el).top);
-      if (isFinite(t)) { gap = t; break; }
+      // negativ = Hero mobil mit Unterkante am Boden (is-story), kein Gap
+      if (isFinite(t) && t >= 0) { gap = t; break; }
     }
     for (const c of cards) {
       c.top = absTop(c.el) - gap;
@@ -233,8 +234,9 @@
     // (ein currentTime-Skip macht den Umlauf sichtbar).
     hv = mkVideo("hero__clip");
     hv.loop = true;
-    hv.defaultPlaybackRate = 0.75; // Laden setzt playbackRate auf default zurueck
-    hv.playbackRate = 0.75;   // gemuetliches Schlendertempo
+    // Tempo 1.0: das gemuetliche Schlendern (frueher playbackRate 0.75)
+    // steckt seit 05.09.2026 in der Datei selbst — 24 fps × 0.75 ergab
+    // 18 Bilder/s und ruckelte auf dem Handy; jetzt 30 fps interpoliert.
     hv.src = heroHouse.dataset.clip;
     hv.addEventListener("playing", () => hv.classList.add("is-on"));
     // vor der Hint-Ebene einhaengen — Geist-Overlay und Lupe
@@ -601,18 +603,19 @@
     ];
 
     /* Touch: der Scrollweg ersetzt die Maus (Stand 05.09.2026).
-       Die Lupe wandert nicht mehr nacheinander von Oeffnung zu Oeffnung —
-       sobald der Nutzer scrollt, stehen DREI Lupen gleichzeitig auf
-       Balkontuer, Fenster und Lichtschacht (die zwei zusaetzlichen sind
-       Klone von #heroLens, ohne Etikett) und bleiben stehen, solange das
-       Haus im Blick ist. Beim Weiterscrollen verschwinden sie, und der
-       Schutz faehrt ueber --zu von oben nach unten zu (CSS, hero__h--hint)
-       — das Haus ist geschlossen, bevor die Systeme kommen.
-       Scrollweg = bis die Bildoberkante den oberen Rand erreicht (im
-       Fluss) bzw. der Spacer (gepinnt, grosse Tablets). */
+       Handy (is-story, CSS): der Hero klebt mit der Unterkante am Boden,
+       der Spacer liefert den Scrollweg, und darueber laeuft die Geschichte:
+         0–10 %   nur das Haus, der Hund laeuft
+         10–55 %  DREI Lupen gleichzeitig auf Balkontuer, Fenster,
+                  Lichtschacht (Klone von #heroLens ohne Etikett)
+         55–75 %  Lupen weg, der Schutz faehrt ueber --zu von oben zu
+         75–100 % das geschlossene Haus steht — dann erst die Systeme.
+       Ohne Spacer (niedrige Viewports, Fluss): gleiche Phasen, gestaucht
+       auf den Weg, bis die Bildoberkante den oberen Rand erreicht. */
     if (!fine) {
-      const LENS_ON = 0.02, LENS_OFF = 0.70;     // Lupen sichtbar
-      const ZU_A = 0.64, ZU_B = 0.96;            // Schutz faehrt zu
+      const PH_STORY = { on: 0.10, off: 0.55, a: 0.55, b: 0.75 };
+      const PH_FLOW  = { on: 0.02, off: 0.70, a: 0.64, b: 0.96 };
+      let PH = PH_FLOW;
       /* Mitte der Oeffnung als Bildanteil (x, y) und Glasgroesse relativ
          zur Basis — Fenster und Lichtschacht liegen eng beieinander,
          deshalb kleinere Glaeser, der Schacht etwas nach rechts unten. */
@@ -641,20 +644,29 @@
           l.style.setProperty("--ly", (fy * r.height).toFixed(1) + "px");
         });
       };
-      let span = 200;
+      const spacer = document.querySelector('.spacer[data-for="hero"]');
+      let s0 = 0, span = 200;
       const sizeSpan = () => {
-        const sp = document.querySelector('.spacer[data-for="hero"]');
-        const t = sp ? sp.offsetHeight : 0;
-        if (t > 4) { span = t; return; }             // gepinnt
+        hero.classList.toggle("is-story", narrow());
+        hero.style.setProperty("--hero-h", hero.offsetHeight + "px");
+        const t = spacer ? spacer.offsetHeight : 0;
+        if (t > 4) {
+          /* gepinnt: Weg = Spacer; klebt der Hero mit der Unterkante am
+             Boden (top negativ), beginnt der Weg erst dort */
+          const top = parseFloat(getComputedStyle(hero).top);
+          s0 = isFinite(top) && top < 0 ? -top : 0;
+          span = t; PH = PH_STORY;
+          return;
+        }
         let y = 0; for (let e = house; e; e = e.offsetParent) y += e.offsetTop;
-        span = Math.max(200, Math.round(y));         // im Fluss
+        s0 = 0; span = Math.max(200, Math.round(y)); PH = PH_FLOW;
       };
       const wipe = () => {
-        const p = Math.min(1, Math.max(0, scrollY / span));
-        const z = Math.min(1, Math.max(0, (p - ZU_A) / (ZU_B - ZU_A)));
+        const p = Math.min(1, Math.max(0, (scrollY - s0) / span));
+        const z = Math.min(1, Math.max(0, (p - PH.a) / (PH.b - PH.a)));
         const zu = z * z * (3 - 2 * z);              // weich anfahren und ankommen
         hero.style.setProperty("--zu", zu.toFixed(3));
-        const on = p > LENS_ON && p < LENS_OFF;
+        const on = p > PH.on && p < PH.off;
         hero.classList.toggle("is-revealing", on);
         hero.classList.toggle("is-lens", on);
       };
@@ -663,6 +675,8 @@
       addEventListener("load", () => { sizeLens(); all(); }, { once: true });
       addEventListener("resize", all, { passive: true });
       addEventListener("scroll", wipe, { passive: true });
+      // Hero-Hoehe aendert sich mit Schriftladen/Umbruch — Klebepunkt nachziehen
+      if (window.ResizeObserver) new ResizeObserver(all).observe(hero.querySelector(".pin") || hero);
       return;
     }
 

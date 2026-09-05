@@ -1681,6 +1681,16 @@ p.macro__counter span:last-child{font-size:.9375rem}
    ========================================================================== */
 @media (max-width:63.99rem){
   #hero{position:relative !important;height:auto !important;z-index:auto}
+  /* Scroll-Geschichte (05.09.2026, Pana): Sobald main.js is-story setzt,
+     klebt der Hero mit seiner UNTERKANTE am Viewport-Boden (top negativ,
+     --hero-h aus main.js) und der Spacer liefert den Scrollweg:
+     Hund laeuft → drei Lupen auf einmal → Lupen weg, Schutz faehrt zu →
+     geschlossenes Haus steht → erst dann schieben sich die Systeme
+     darueber. svh statt dvh, sonst springt es mit der iOS-Leiste. */
+  @media (min-height:30rem){
+    #hero.is-story{position:sticky !important;top:calc(100svh - var(--hero-h,100svh))}
+    #hero.is-story + .spacer[data-for="hero"]{display:block !important;height:160svh}
+  }
   #hero .pin{height:auto !important;display:flex;flex-direction:column;padding:0 0 1.25rem}
   .hero__inner{order:1;padding:calc(3.5rem + 2.25rem) var(--pad-x) 0}
   .hero .eyebrow{margin-bottom:1.5rem}
