@@ -36,6 +36,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#top">Zum Inhalt springen</a>
 
 <!-- ══════════ NAVIGATION — Aufbau 1:1 nach Referenz ══════════
      Wortmarke auf dem Grund · dunkles Home-Quadrat · weiße Leiste ueber die
@@ -84,7 +85,7 @@
   <a href="#kontakt">Kontakt</a>
 </div>
 
-<main class="stack" id="top">
+<main class="stack" id="top" tabindex="-1">
 
 <!-- ══════════ 1 · HERO — Gewebe fährt beim Scrollen zu ══════════ -->
 <section class="card card--ground hero" id="hero" data-pin="hero" data-scroll="1">
@@ -169,6 +170,7 @@
 <div class="pinwrap"><!-- begrenzt das Sticky: nach dem Spacer wird die Karte mit rausgeschoben -->
 <section class="card card--white systems" id="systeme" data-pin="systems" data-scroll="4.5">
   <div class="systems__pin pin">
+    <h2 class="sr-only">Unsere Insektenschutz-Systeme</h2>
 
     <div class="systems__progress" aria-hidden="true" id="sysProgress">
       <span class="systems__bar"><i></i></span><span class="systems__bar"><i></i></span>
@@ -571,6 +573,13 @@
       <p class="eyebrow reveal">Häufige Fragen</p>
       <h2 class="reveal" style="--d:.06s">Das fragen<br>Kunden am häufigsten</h2>
       <p class="lead reveal" style="--d:.12s">Ihre Frage ist nicht dabei? Rufen Sie einfach kurz an — <a href="tel:+4916092726131">0160 92726131</a>.</p>
+      <!-- Pause-Schalter: endlos laufende Inhalte muessen sich anhalten lassen
+           (WCAG 2.2.2), auch per Tastatur und auf dem Handy. main.js blendet
+           ihn erst ein, wenn das Laufband wirklich laeuft. -->
+      <button class="faq__pause" id="faqPause" type="button" hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path class="faq__pause-ico" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>
+        <span>Laufband anhalten</span>
+      </button>
     </div>
     <!-- Zwei ruhige Reihen (5+4 Fragen), bewusst langsam (~30 px/s),
          damit man beim Durchlaufen mitlesen kann -->

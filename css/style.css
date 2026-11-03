@@ -24,7 +24,10 @@
   --bg-inverse:#16181C;
   --bg-inverse-soft:#22262C;
   --text-primary:#101317;
-  --text-secondary:#6B7280;
+  --text-secondary:#5B6270;   /* 4,7:1 auf #E4E2DE (WCAG AA) */
+  --text-placeholder:#6B7280; /* 4,8:1 auf Weiss */
+  --text-warm:#66615A;        /* Taupe auf Warmgrau, 4,7:1 */
+  --text-warm-big:#807A73;    /* nur grosse Zahlen, 3,3:1 */
   --text-on-dark:#F4F6F7;
   --text-on-dark-dim:rgba(244,246,247,.66);
   --border:#E1E4E7;
@@ -32,7 +35,8 @@
   --border-on-dark:rgba(255,255,255,.12);
 
   --accent:#06BAFF;
-  --accent-deep:#0090C8;
+  --accent-deep:#006F99;      /* Blau fuer Text: 5,1:1 auf Seitenfarbe */
+  --accent-fill:#0090C8;      /* Flaechen-Verlauf, kein Text */
   --accent-soft:rgba(6,186,255,.12);
 
   --glass-bg:rgba(16,19,23,.55);
@@ -110,6 +114,16 @@ h1,h2,h3,.headline{
   outline-offset:3px;
   border-radius:.25rem;
 }
+main:focus{outline:none}
+/* Nur fuer Screenreader sichtbar (z. B. die h2 der Systeme-Karte) */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* Skip-Link: erst beim Tabben sichtbar, springt ueber die Navigation */
+.skip{position:fixed;left:var(--gap);top:var(--gap);z-index:1000;
+  padding:.75rem 1.1rem;border-radius:var(--radius-sm);
+  background:var(--bg-inverse);color:#fff;font-weight:600;font-size:.9375rem;
+  transform:translateY(-200%);transition:transform .2s var(--ease-out)}
+.skip:focus-visible{transform:none}
 
 /* ---------- Bausteine ---------- */
 .eyebrow{
@@ -410,7 +424,7 @@ h1,h2,h3,.headline{
 }
 .glass__fill{
   position:absolute;inset:0 auto 0 0;border-radius:999px;
-  background:linear-gradient(90deg,var(--accent),var(--accent-deep));
+  background:linear-gradient(90deg,var(--accent),var(--accent-fill));
   width:var(--fill,0%);
   transition:width 1.1s var(--ease-out);
 }
@@ -451,9 +465,10 @@ h1,h2,h3,.headline{
   background:rgba(6,186,255,.30);overflow:hidden;
 }
 .systems__bar i{
-  position:absolute;inset:0 auto 0 0;width:0;
+  position:absolute;inset:0;
   background:var(--accent);border-radius:2px;
-  /* keine transition — der geglaettete Scroll-Wert treibt die Breite direkt */
+  transform:scaleX(0);transform-origin:left center;
+  /* keine transition — der geglaettete Scroll-Wert treibt den Balken direkt */
 }
 .systems__stage{position:relative;min-height:0;height:100%}
 .systems__shot{
@@ -696,8 +711,8 @@ p.macro__counter span:last-child{font-size:.9375rem}
   font-weight:600;color:var(--text-secondary)}
 .split__statvalue{font-family:"Clash Grotesk",sans-serif;font-weight:500;
   font-size:clamp(3.25rem,5.5vw,5rem);line-height:1;letter-spacing:-.02em;
-  color:#97918A;margin:auto 0}
-.split__statprefix{display:block;font-size:1rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#97918A;margin-bottom:.3rem}
+  color:var(--text-warm-big);margin:auto 0}
+.split__statprefix{display:block;font-size:1rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-warm);margin-bottom:.3rem}
 .split__statvalue sup{font-size:.34em;vertical-align:baseline;
   position:relative;top:-1.05em;margin-right:.25em}
 .split__media{position:relative;border-radius:var(--radius);overflow:hidden;
@@ -997,7 +1012,15 @@ p.macro__counter span:last-child{font-size:.9375rem}
 .faq__track{display:flex;width:max-content}
 .faq__rows.is-ready .faq__track{animation:faq-scroll var(--dur,60s) linear infinite}
 .faq__row--rev .faq__track{animation-direction:reverse}
-.faq__row:hover .faq__track{animation-play-state:paused}
+.faq__row:hover .faq__track,
+.faq__rows.is-paused .faq__track{animation-play-state:paused}
+.faq__pause{margin:1.25rem auto 0;display:inline-flex;align-items:center;gap:.5rem;
+  min-height:2.75rem;padding:0 1.1rem;border:0;border-radius:999px;
+  background:var(--bg-card);color:var(--text-primary);
+  box-shadow:inset 0 0 0 1px var(--border-strong);
+  font:inherit;font-size:var(--fs-small);font-weight:600;cursor:pointer;
+  transition:background-color .2s var(--ease-out)}
+.faq__pause:hover{background:var(--bg-stone)}
 .faq__set{flex:0 0 auto;display:flex;align-items:stretch;gap:1.25rem;padding-inline:.625rem}
 .faq__card{flex:0 0 auto;width:min(24rem,78vw);
   background:var(--bg-card);border-radius:var(--radius);
@@ -1072,6 +1095,10 @@ p.macro__counter span:last-child{font-size:.9375rem}
 .footer h4{font-size:var(--fs-caption);letter-spacing:.08em;text-transform:uppercase;
   color:var(--text-secondary);margin-bottom:1rem;font-weight:600}
 .footer li{margin-bottom:.6rem;font-size:var(--fs-small)}
+@media (pointer:coarse){
+  .footer li{margin-bottom:0}
+  .footer li a{display:inline-block;padding-block:.55rem}
+}
 .footer a:hover{color:var(--accent-deep)}
 /* Fusszeile ohne Trennlinie, etwas hoeher geruckt; links unter dem
    Copyright der Design-Credit wie auf der Tradita-Seite */
@@ -1113,7 +1140,7 @@ p.macro__counter span:last-child{font-size:.9375rem}
 .on-dark .form input,.on-dark .form select,.on-dark .form textarea{
   background:rgba(255,255,255,.06);color:var(--text-on-dark);border-color:var(--border-on-dark);
 }
-.form input::placeholder,.form textarea::placeholder{color:rgba(16,19,23,.35)}
+.form input::placeholder,.form textarea::placeholder{color:var(--text-placeholder)}
 .on-dark .form input::placeholder,.on-dark .form textarea::placeholder{color:rgba(244,246,247,.4)}
 .form textarea{min-height:6rem;resize:vertical}
 .form__check{display:flex;gap:.6rem;align-items:flex-start;font-size:var(--fs-caption);
@@ -1586,7 +1613,7 @@ p.macro__counter span:last-child{font-size:.9375rem}
   .hero__bg{position:relative;inset:auto}
   .hero__house{position:relative;right:auto;top:auto;transform:none;width:100%;margin-bottom:1.5rem}
   .hero__bg::after{display:none}
-  .hero__lens-tag{font-size:.625rem;padding:.3125rem .5rem}
+  .hero__lens-tag{font-size:.6875rem;padding:.3125rem .5rem}
 }
 
 /* ==========================================================================

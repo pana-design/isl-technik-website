@@ -111,18 +111,23 @@
     }, { once: true });
     ph.appendChild(v);
   };
-  const wxTick = () => {
-    if (!wxCard || wxCard.travel <= 4 || !wxPhases.length || !wxFrame) return;
+  // Misst die Wetter-Karte am Anfang des Frames (vor allen Schreibzugriffen)
+  const wxMeasure = () => {
+    if (!wxCard || wxCard.travel <= 4 || !wxPhases.length || !wxFrame) return null;
+    return { r: wxCard.el.getBoundingClientRect(), f: wxFrame.getBoundingClientRect() };
+  };
+  const wxTick = rects => {
+    if (!rects) return;
     const p = wxCard.last < 0 ? 0 : wxCard.last;
     const idx = p < wxA + 0.02 ? 0 : p < wxB + 0.02 ? 1 : 2;
     // Laden, sobald die Karte in Reichweite kommt (aktuelle + naechste Phase)
-    const r = wxCard.el.getBoundingClientRect();
+    const r = rects.r;
     const near = r.bottom > -200 && r.top < innerHeight * 1.5;
     if (near) { wxVideo(wxPhases[idx]); wxVideo(wxPhases[idx + 1]); }
     // Abspielen aber erst, wenn die Buehne wirklich im Bild ist — sonst ist
     // das Laub laengst gefallen, bevor jemand hinschaut (der Clip lief
     // frueher schon los, waehrend die Karte noch weit unter dem Bildrand lag).
-    const f = wxFrame.getBoundingClientRect();
+    const f = rects.f;
     const seen = near && f.bottom > 0 && f.top < innerHeight - f.height * 0.6;
     const want = seen ? idx : -1;
     if (want === wxCur) return;
@@ -307,7 +312,7 @@
       document.querySelectorAll("video[data-scrub]").forEach(v => { if (v.paused) prime(v); });
       heroSync();
       if (ov && outroWant && ov.paused) ov.play().catch(() => {});
-      wxCur = -1; wxTick();            // laufende Wetter-Phase neu anstossen
+      wxCur = -1; wxTick(wxMeasure());            // laufende Wetter-Phase neu anstossen
     }, { once: true, passive: true });
   }
 
@@ -331,13 +336,19 @@
     const y = scrollY;
     let moving = false;
 
-    for (const c of cards) {
+    // Erst alles messen, dann schreiben — sonst erzwingt jedes
+    // getBoundingClientRect nach einem setProperty ein neues Layout
+    const rects = cards.map(c => c.travel > 4 ? null : c.el.getBoundingClientRect());
+    const restTop = hv && stackRest ? stackRest.getBoundingClientRect().top : 0;
+    const wxRects = wxMeasure();
+
+    cards.forEach((c, ci) => {
       let p = 0;
       if (c.travel > 4) {
         p = clamp((y - c.top) / c.travel);
       } else {
         // Karte ohne eigenen Scrollweg: Fortschritt ueber die Sichtbarkeit
-        const r = c.el.getBoundingClientRect();
+        const r = rects[ci];
         p = clamp((innerHeight - r.top) / (innerHeight + r.height));
       }
       let s = c.last < 0 ? p : c.last + (p - c.last) * k;
@@ -347,7 +358,7 @@
         if (c.pin) c.pin.style.setProperty("--p", s.toFixed(4));
         c.last = s;
       }
-    }
+    });
 
     // Mehrstufige Sections durchschalten
     for (const g of groups) {
@@ -377,15 +388,15 @@
       }
       if (g.card.el.id === "systeme" && sysBars.length === n) {
         for (let i = 0; i < n; i++) {
-          sysBars[i].style.width = (clamp(eff * n - i) * 100).toFixed(1) + "%";
+          sysBars[i].style.transform = "scaleX(" + clamp(eff * n - i).toFixed(3) + ")";
         }
       }
     }
 
-    wxTick();
+    wxTick(wxRects);
 
     if (hv && stackRest) {
-      const covered = stackRest.getBoundingClientRect().top <= 8;
+      const covered = restTop <= 8;
       if (covered !== heroCovered) { heroCovered = covered; heroSync(); }
     }
 
@@ -468,12 +479,39 @@
   if (faqRows) {
     faqRows.querySelectorAll(".faq__track").forEach(track => {
       const set = track.querySelector(".faq__set");
-      set.innerHTML += set.innerHTML + set.innerHTML;
+      // Kopien nur fuers Auge: Screenreader lesen jede Frage genau einmal
+      const cards = [...set.children];
+      for (let k = 0; k < 2; k++) cards.forEach(c => {
+        const copy = c.cloneNode(true);
+        copy.setAttribute("aria-hidden", "true");
+        set.appendChild(copy);
+      });
       const dup = set.cloneNode(true);
       dup.setAttribute("aria-hidden", "true");
       track.appendChild(dup);
     });
-    if (!reduced) faqRows.classList.add("is-ready");
+    if (!reduced) {
+      faqRows.classList.add("is-ready");
+      // Anhalten per Schalter (Tastatur, Screenreader) und per Antippen
+      // einer Reihe (Handy — dort gibt es kein Hover)
+      const pauseBtn = document.getElementById("faqPause");
+      const setPaused = on => {
+        faqRows.classList.toggle("is-paused", on);
+        if (pauseBtn) {
+          pauseBtn.querySelector("span").textContent = on ? "Laufband fortsetzen" : "Laufband anhalten";
+          pauseBtn.querySelector(".faq__pause-ico").setAttribute("d", on ? "M8 5v14l11-7z" : "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z");
+        }
+      };
+      if (pauseBtn) {
+        pauseBtn.hidden = false;
+        pauseBtn.addEventListener("click", () => setPaused(!faqRows.classList.contains("is-paused")));
+      }
+      let lastPointer = "mouse";
+      faqRows.addEventListener("pointerdown", e => { lastPointer = e.pointerType; }, { passive: true });
+      faqRows.addEventListener("click", () => {
+        if (lastPointer !== "mouse") setPaused(!faqRows.classList.contains("is-paused"));
+      });
+    }
   }
 
   /* ---------- 5 · Zahlen hochzählen & Balken füllen ---------- */
